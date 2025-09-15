@@ -74,6 +74,8 @@ export class Configuracion {
     { entrada: '16:00', salida: '20:00' },
   ];
 
+  pdfUrl: SafeResourceUrl | null = null;
+
   constructor(private sanitizer: DomSanitizer) {
   }
 
@@ -123,7 +125,13 @@ export class Configuracion {
   }
 
   async generateReport() {
-    const url = 'assets/control-asistencia.pdf';
+    // Determina el PDF según el número de fechas a mostrar
+    const maxCamposDefault = 24; // Ajusta según los campos que soporte el PDF normal
+    const usarTestPdf = this.config.asistencia.length > maxCamposDefault;
+    const url = usarTestPdf
+      ? 'assets/control-asistencia-test.pdf'
+      : 'assets/control-asistencia.pdf';
+
     const existingPdfBytes = await fetch(url).then(res => res.arrayBuffer());
     const pdfDoc = await PDFDocument.load(existingPdfBytes);
     const form = pdfDoc.getForm();
@@ -173,8 +181,8 @@ export class Configuracion {
     // Mostrar advertencia si hay más días que campos disponibles
     if (this.config.asistencia.length > maxCampos) {
       const diasFaltantes = this.config.asistencia.length - maxCampos;
-      console.warn(`⚠️ El PDF solo soporta ${maxCampos} días, faltan ${diasFaltantes} días por mostrar.`);
-      alert(`⚠️ Advertencia: El PDF actual solo puede mostrar ${maxCampos} días.\n\nSe necesitan ${diasFaltantes} campos adicionales para mostrar todos los días del período.\n\n¿Te gustaría que se cree un nuevo PDF con más campos?`);
+      console.warn(`El PDF solo soporta ${maxCampos} días, faltan ${diasFaltantes} días por mostrar.`);
+      alert(`Advertencia: El PDF actual solo puede mostrar ${maxCampos} días.\n\nSe necesitan ${diasFaltantes} campos adicionales para mostrar todos los días del período.\n\n¿Te gustaría que se cree un nuevo PDF con más campos?`);
     }
 
     // Totales
@@ -186,8 +194,8 @@ export class Configuracion {
     const blob = new Blob([new Uint8Array(pdfBytes)], {type: 'application/pdf'});
     const urlBlob = URL.createObjectURL(blob);
 
-    const iframe = document.querySelector('iframe');
-    if (iframe) iframe.src = urlBlob;
+    // Propiedad pdfUrl para que el iframe lo use
+    this.pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(urlBlob);
   }
 
   // Método auxiliar para verificar si un campo existe
@@ -461,6 +469,17 @@ export class Configuracion {
       .reduce((total, dia) => total + parseFloat(dia.horasPorDia), 0);
 
     this.config.totalHorasMes = horasNormales.toString();
+  }
+
+  // Método público para obtener la URL segura del PDF
+  getPdfUrl(): SafeResourceUrl {
+    if (this.pdfUrl) {
+      return this.pdfUrl;
+    }
+    const pdfPath = this.config.asistencia.length > 24
+      ? 'assets/control-asistencia-test.pdf'
+      : 'assets/control-asistencia.pdf';
+    return this.sanitizer.bypassSecurityTrustResourceUrl(pdfPath);
   }
 
 }
