@@ -1,1 +1,137 @@
-<p>configuracion works!</p>
+<div class="space-y-6">
+  <div class="bg-white rounded-xl shadow-md p-6 border border-gray-200">
+    <h1 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+      <i class="lucide-file-text h-6 w-6 text-green-600 mr-3"></i>
+      Configuración de Reportes
+    </h1>
+
+    <div class="grid lg:grid-cols-2 gap-8">
+      <!-- Formulario -->
+      <div class="space-y-6">
+
+        <!-- Tipo de Reporte y Departamento -->
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Tipo de Reporte</label>
+            <select [(ngModel)]="config.reportType"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+              <option value="diario">Diario</option>
+              <option value="semanal">Semanal</option>
+              <option value="mensual">Mensual</option>
+              <option value="trimestral">Trimestral</option>
+              <option value="anual">Anual</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Departamento</label>
+            <select [(ngModel)]="config.department"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+              <option value="general">General</option>
+              <option value="asistencia-social">Asistencia Social</option>
+              <option value="trabajo-social">Trabajo Social</option>
+              <option value="psicologia">Psicología</option>
+              <option value="medico">Médico</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Rango de Fechas -->
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              <i class="lucide-calendar inline h-4 w-4 mr-1"></i>
+              Fecha Inicio
+            </label>
+            <input type="date" [(ngModel)]="config.startDate"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2
+                   focus:ring-green-500 focus:border-transparent bg-yellow-50">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              <i class="lucide-calendar inline h-4 w-4 mr-1"></i>
+              Fecha Fin
+            </label>
+            <input type="date" [(ngModel)]="config.endDate"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2
+                   focus:ring-green-500 focus:border-transparent bg-yellow-50">
+          </div>
+        </div>
+
+        <!-- Fechas Inhábiles -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Ingresar Fechas Inhábiles</label>
+          <div class="flex space-x-2 mb-3">
+            <input type="date" [(ngModel)]="newUnavailableDate"
+                   class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2
+                   focus:ring-green-500 focus:border-transparent bg-yellow-50">
+            <button (click)="addUnavailableDate()"
+                    class="px-4 py-2 bg-yellow-500 text-white rounded-lg
+                    hover:bg-yellow-600 transition-colors">
+              Agregar
+            </button>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            @for (date of config.unavailableDates; track date) {
+              <div
+                class="inline-flex items-center px-3 py-1 bg-yellow-100
+                    text-yellow-800 text-sm rounded-full">
+                {{ date }}
+                <button (click)="removeDate(date,'unavailable')"
+                        class="ml-2 text-yellow-600 hover:text-yellow-800">×
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Fechas de Vacaciones -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Ingresar Fechas de Vacaciones</label>
+          <div class="flex space-x-2 mb-3">
+            <input type="date" [(ngModel)]="newVacationDate"
+                   class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2
+                   focus:ring-green-500 focus:border-transparent bg-yellow-50">
+            <button (click)="addVacationDate()"
+                    class="px-4 py-2 bg-yellow-500 text-white rounded-lg
+                    hover:bg-yellow-600 transition-colors">
+              Agregar
+            </button>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            @for (date of config.vacationDates; track date) {
+              <div class="inline-flex items-center px-3 py-1 bg-yellow-100
+              text-yellow-800 text-sm rounded-full">
+                {{ date }}
+                <button (click)="removeDate(date,'vacation')"
+                        class="ml-2 text-yellow-600 hover:text-yellow-800">×
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Estadísticas -->
+        <div>
+          <label class="flex items-center">
+            <input type="checkbox" [(ngModel)]="config.includeStatistics"
+                   class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+            <span class="ml-2 text-sm text-gray-700">Incluir estadísticas detalladas</span>
+          </label>
+        </div>
+
+        <!-- Botón Generar -->
+        <button (click)="generateReport()"
+                [disabled]="!config.startDate || !config.endDate"
+                class="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2">
+          <i class="lucide-eye h-5 w-5"></i>
+          <span>Generar Vista Previa</span>
+        </button>
+      </div>
+
+      <!-- PDF Preview -->
+      <div>
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Vista Previa del Reporte</h3>
+      </div>
+    </div>
+  </div>
+</div>
