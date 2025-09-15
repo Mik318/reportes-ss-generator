@@ -61,6 +61,15 @@ export class Configuracion {
   fechasEspeciales: FechaEspecial[] = [];
   csvFile: File | null = null;
 
+  diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
+  horariosServicio = [
+    { entrada: '07:00', salida: '11:00' },
+    { entrada: '12:00', salida: '16:00' },
+    { entrada: '10:00', salida: '14:00' },
+    { entrada: '07:00', salida: '11:00' },
+    { entrada: '16:00', salida: '17:00' },
+  ];
+
   constructor(private sanitizer: DomSanitizer) {
   }
 
@@ -309,10 +318,10 @@ export class Configuracion {
     // Generar fechas laborables para el periodo seleccionado
     this.fechasLaborables = this.generarFechasLaborables(periodo.del, periodo.al);
 
-    // Actualizar array de asistencia con las fechas laborables
+    // Actualizar array de asistencia con las fechas laborables y horarios según el día de la semana
     this.config.asistencia = this.fechasLaborables.map(fecha => {
       const fechaEspecial = this.esFechaEspecial(fecha);
-      // console.log('Fecha Especial:', fecha, this.esFechaEspecial(fecha));
+
       if (fechaEspecial) {
         // Si es fecha especial, usar el tipo como hora entrada y salida
         return {
@@ -322,14 +331,18 @@ export class Configuracion {
           horasPorDia: '0'
         };
       } else {
-        // Día normal de trabajo
-        const horaEntrada = '08:00';
-        const horaSalida = '12:00';
+        // Día normal de trabajo: asignar horario según el día de la semana
+        const diaSemana = moment(fecha).isoWeekday(); // 1=Lunes ... 5=Viernes
+        // Ajustar índice para array (Lunes=0, ..., Viernes=4)
+        const idx = Math.max(0, Math.min(4, diaSemana - 1));
+        const horario = this.horariosServicio[idx];
+        const horasPorDia = this.calcularHorasPorDia(horario.entrada, horario.salida);
+
         return {
           fecha: fecha,
-          horaEntrada: horaEntrada,
-          horaSalida: horaSalida,
-          horasPorDia: this.calcularHorasPorDia(horaEntrada, horaSalida)
+          horaEntrada: horario.entrada,
+          horaSalida: horario.salida,
+          horasPorDia: horasPorDia
         };
       }
     });
@@ -340,9 +353,6 @@ export class Configuracion {
       .reduce((total, dia) => total + parseFloat(dia.horasPorDia), 0);
 
     this.config.totalHorasMes = horasNormales.toString();
-
-    console.log('Fechas laborables del periodo:', this.fechasLaborables);
-    console.log('Días laborables:', this.fechasLaborables.length);
   }
 
 }
