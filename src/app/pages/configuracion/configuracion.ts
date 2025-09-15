@@ -67,14 +67,15 @@ export class Configuracion {
     { entrada: '12:00', salida: '16:00' },
     { entrada: '10:00', salida: '14:00' },
     { entrada: '07:00', salida: '11:00' },
-    { entrada: '16:00', salida: '17:00' },
+    { entrada: '16:00', salida: '20:00' },
   ];
 
   constructor(private sanitizer: DomSanitizer) {
   }
 
   formatearFechaEspanol(fecha: string): string {
-    return moment(fecha).format('DD [de] MMMM [de] YYYY');
+    // Asegura que moment use el locale español para el mes
+    return moment(fecha).locale('es').format('DD [de] MMMM [de] YYYY');
   }
 
   contarDiasEspeciales(): number {
@@ -92,6 +93,28 @@ export class Configuracion {
 
     const diferencia = salida.diff(entrada, 'hours', true);
     return Math.max(0, diferencia).toString();
+  }
+
+  calcularHorasAcumuladas(): string {
+    // Suma las horas de todos los reportes generados hasta el actual
+    let acumulado = 0;
+    for (let i = 1; i <= this.config.reporteActual; i++) {
+      const periodo = this.reportePeriodos.find(r => r.numero === i);
+      if (periodo) {
+        const fechasLaborables = this.generarFechasLaborables(periodo.del, periodo.al);
+        fechasLaborables.forEach(fecha => {
+          const fechaEspecial = this.esFechaEspecial(fecha);
+          if (!fechaEspecial) {
+            // Día normal, calcula el horario según el día de la semana
+            const diaSemana = moment(fecha).isoWeekday();
+            const idx = Math.max(0, Math.min(4, diaSemana - 1));
+            const horario = this.horariosServicio[idx];
+            acumulado += parseFloat(this.calcularHorasPorDia(horario.entrada, horario.salida));
+          }
+        });
+      }
+    }
+    return acumulado.toString();
   }
 
   async generateReport() {
@@ -119,6 +142,7 @@ export class Configuracion {
 
     // Totales
     form.getTextField('Horas por díaTOTAL DE HORAS PRESTADAS POR MES').setText(this.config.totalHorasMes);
+    this.config.totalHorasAcumuladas = this.calcularHorasAcumuladas();
     form.getTextField('Horas por díaTOTAL DE HORAS PRESTADAS ACUMULADAS').setText(this.config.totalHorasAcumuladas);
 
     const pdfBytes = await pdfDoc.save();
