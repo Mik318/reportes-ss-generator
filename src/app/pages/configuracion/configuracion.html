@@ -8,7 +8,6 @@
     <div class="grid lg:grid-cols-2 gap-8">
       <!-- Formulario -->
       <div class="space-y-6">
-
         <!-- Información del Prestador -->
         <div class="bg-gray-50 p-4 rounded-lg">
           <h3 class="text-lg font-medium text-gray-900 mb-4">Información del Prestador</h3>
@@ -48,117 +47,149 @@
           <div class="grid md:grid-cols-2 gap-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">Periodo del</label>
-              <input type="date" [(ngModel)]="config.periodoDel"
-                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+              <input type="date" [(ngModel)]="config.periodoDel" readonly
+                     class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed">
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">al</label>
-              <input type="date" [(ngModel)]="config.periodoAl"
-                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+              <input type="date" [(ngModel)]="config.periodoAl" readonly
+                     class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed">
             </div>
           </div>
         </div>
 
-        <!-- Tipo de Reporte y Departamento -->
-<!--        <div class="grid md:grid-cols-2 gap-4">-->
-<!--          <div>-->
-<!--            <label class="block text-sm font-medium text-gray-700 mb-2">Tipo de Reporte</label>-->
-<!--            <select [(ngModel)]="config.reportType"-->
-<!--                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">-->
-<!--              <option value="diario">Diario</option>-->
-<!--              <option value="semanal">Semanal</option>-->
-<!--              <option value="mensual">Mensual</option>-->
-<!--              <option value="trimestral">Trimestral</option>-->
-<!--              <option value="anual">Anual</option>-->
-<!--            </select>-->
-<!--          </div>-->
-<!--          <div>-->
-<!--            <label class="block text-sm font-medium text-gray-700 mb-2">Departamento</label>-->
-<!--            <select [(ngModel)]="config.department"-->
-<!--                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">-->
-<!--              <option value="general">General</option>-->
-<!--              <option value="asistencia-social">Asistencia Social</option>-->
-<!--              <option value="trabajo-social">Trabajo Social</option>-->
-<!--              <option value="psicologia">Psicología</option>-->
-<!--              <option value="medico">Médico</option>-->
-<!--            </select>-->
-<!--          </div>-->
-<!--        </div>-->
 
-        <!-- Rango de Fechas -->
-<!--        <div class="grid md:grid-cols-2 gap-4">-->
-<!--          <div>-->
-<!--            <label class="block text-sm font-medium text-gray-700 mb-2">-->
-<!--              <i class="lucide-calendar inline h-4 w-4 mr-1"></i>-->
-<!--              Fecha Inicio-->
-<!--            </label>-->
-<!--            <input type="date" [(ngModel)]="config.startDate"-->
-<!--                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2-->
-<!--                   focus:ring-green-500 focus:border-transparent bg-yellow-50">-->
-<!--          </div>-->
-<!--          <div>-->
-<!--            <label class="block text-sm font-medium text-gray-700 mb-2">-->
-<!--              <i class="lucide-calendar inline h-4 w-4 mr-1"></i>-->
-<!--              Fecha Fin-->
-<!--            </label>-->
-<!--            <input type="date" [(ngModel)]="config.endDate"-->
-<!--                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2-->
-<!--                   focus:ring-green-500 focus:border-transparent bg-yellow-50">-->
-<!--          </div>-->
-<!--        </div>-->
+        <!-- Archivo CSV de Fechas Especiales -->
+        <div class="bg-yellow-50 p-4 rounded-lg">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Fechas Especiales (CSV)</h3>
 
-        <!-- Fechas Inhábiles -->
-<!--        <div>-->
-<!--          <label class="block text-sm font-medium text-gray-700 mb-2">Ingresar Fechas Inhábiles</label>-->
-<!--          <div class="flex space-x-2 mb-3">-->
-<!--            <input type="date" [(ngModel)]="newUnavailableDate"-->
-<!--                   class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2-->
-<!--                   focus:ring-green-500 focus:border-transparent bg-yellow-50">-->
-<!--            <button (click)="addUnavailableDate()"-->
-<!--                    class="px-4 py-2 bg-yellow-500 text-white rounded-lg-->
-<!--                    hover:bg-yellow-600 transition-colors">-->
-<!--              Agregar-->
-<!--            </button>-->
-<!--          </div>-->
-<!--          <div class="flex flex-wrap gap-2">-->
-<!--            @for (date of config.unavailableDates; track date) {-->
-<!--              <div-->
-<!--                class="inline-flex items-center px-3 py-1 bg-yellow-100-->
-<!--                    text-yellow-800 text-sm rounded-full">-->
-<!--                {{ date }}-->
-<!--                <button (click)="removeDate(date,'unavailable')"-->
-<!--                        class="ml-2 text-yellow-600 hover:text-yellow-800">×-->
-<!--                </button>-->
-<!--              </div>-->
-<!--            }-->
-<!--          </div>-->
-<!--        </div>-->
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Subir archivo CSV con fechas especiales
+            </label>
+            <input type="file"
+                   accept=".csv"
+                   (change)="onFileSelected($event)"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+          </div>
 
-        <!-- Fechas de Vacaciones -->
-<!--        <div>-->
-<!--          <label class="block text-sm font-medium text-gray-700 mb-2">Ingresar Fechas de Vacaciones</label>-->
-<!--          <div class="flex space-x-2 mb-3">-->
-<!--            <input type="date" [(ngModel)]="newVacationDate"-->
-<!--                   class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2-->
-<!--                   focus:ring-green-500 focus:border-transparent bg-yellow-50">-->
-<!--            <button (click)="addVacationDate()"-->
-<!--                    class="px-4 py-2 bg-yellow-500 text-white rounded-lg-->
-<!--                    hover:bg-yellow-600 transition-colors">-->
-<!--              Agregar-->
-<!--            </button>-->
-<!--          </div>-->
-<!--          <div class="flex flex-wrap gap-2">-->
-<!--            @for (date of config.vacationDates; track date) {-->
-<!--              <div class="inline-flex items-center px-3 py-1 bg-yellow-100-->
-<!--              text-yellow-800 text-sm rounded-full">-->
-<!--                {{ date }}-->
-<!--                <button (click)="removeDate(date,'vacation')"-->
-<!--                        class="ml-2 text-yellow-600 hover:text-yellow-800">×-->
-<!--                </button>-->
-<!--              </div>-->
-<!--            }-->
-<!--          </div>-->
-<!--        </div>-->
+          <div class="text-xs text-gray-600 mb-4">
+            <strong>Formato requerido (separado por comas o tabulaciones):</strong><br>
+            <code>fecha,tipo_fecha</code> o <code>fecha&nbsp;&nbsp;&nbsp;&nbsp;tipo_fecha</code><br>
+            <code>18/11/2025,Día inhábil</code><br>
+            <code>19/11/2025,Periodo vacacional</code>
+          </div>
+
+          @if (fechasEspeciales.length > 0) {
+            <div class="bg-white p-3 rounded border">
+              <h4 class="font-medium text-sm text-gray-900 mb-2">
+                Fechas especiales cargadas ({{ fechasEspeciales.length }})
+              </h4>
+              <div class="max-h-32 overflow-y-auto space-y-1">
+                @for (fecha of fechasEspeciales; track fecha.fecha) {
+                  <div class="flex justify-between items-center text-xs">
+                    <span>{{ formatearFechaEspanol(fecha.fecha) }}</span>
+                    <span class="bg-yellow-100 px-2 py-1 rounded">{{ fecha.tipoFecha }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Fechas del Servicio Social -->
+        <div class="bg-blue-50 p-4 rounded-lg">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Fechas del Servicio Social (Carta Compromiso)</h3>
+
+          <div class="grid md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Fecha de Inicio</label>
+              <input type="date" [(ngModel)]="config.fechaInicioServicio"
+                     (change)="calcularPeriodosReporte()"
+                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Fecha de Fin</label>
+              <input type="date" [(ngModel)]="config.fechaFinServicio"
+                     (change)="calcularPeriodosReporte()"
+                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+          </div>
+
+          <!-- Botón para calcular periodos -->
+          <button (click)="calcularPeriodosReporte()"
+                  class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+            Calcular Periodos de Reporte
+          </button>
+        </div>
+
+        <!-- Periodos de Reporte -->
+        @if (reportePeriodos.length > 0) {
+          <div class="bg-green-50 p-4 rounded-lg">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Seleccionar Periodo de Reporte</h3>
+            <div class="space-y-2">
+              @for (periodo of reportePeriodos; track periodo.numero) {
+                <div
+                  class="flex items-center justify-between p-3 border rounded-lg hover:bg-white cursor-pointer transition-colors"
+                  [class.bg-green-100]="config.reporteActual === periodo.numero"
+                  (click)="seleccionarPeriodo(periodo)">
+                  <div class="flex items-center space-x-3">
+                    <input type="radio"
+                           [checked]="config.reporteActual === periodo.numero"
+                           class="text-green-600 focus:ring-green-500">
+                    <span class="font-medium">Reporte #{{ periodo.numero }}</span>
+                  </div>
+                  <div class="text-sm text-gray-600">
+                    Del {{ formatearFechaEspanol(periodo.del) }} al {{ formatearFechaEspanol(periodo.al) }}
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Fechas Laborables del Periodo -->
+        @if (fechasLaborables.length > 0) {
+          <div class="bg-purple-50 p-4 rounded-lg">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">
+              Fechas del Reporte #{{ config.reporteActual }}
+              <span class="text-sm font-normal text-gray-600">({{ fechasLaborables.length }} días)</span>
+            </h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-48 overflow-y-auto">
+              @for (dia of config.asistencia; track dia.fecha) {
+                <div class="bg-white p-2 rounded border text-sm">
+                  <div class="font-medium">{{ formatearFechaEspanol(dia.fecha) }}</div>
+                  <div class="text-xs text-gray-500">{{ dia.fecha | date:'EEEE':'':'es' }}</div>
+                  @if (dia.horasPorDia === '0') {
+                    <div class="text-xs text-red-600 font-medium">{{ dia.horaEntrada }}</div>
+                  } @else {
+                    <div class="text-xs text-green-600">{{ dia.horaEntrada }} - {{ dia.horaSalida }}
+                      ({{ dia.horasPorDia }}h)
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+
+            <div class="mt-4 p-3 bg-white rounded border">
+              <div class="flex justify-between items-center text-sm">
+                <span class="font-medium">Total de días:</span>
+                <span class="bg-purple-100 px-2 py-1 rounded">{{ fechasLaborables.length }} días</span>
+              </div>
+              <div class="flex justify-between items-center text-sm mt-1">
+                <span class="font-medium">Total de horas laborales:</span>
+                <span class="bg-purple-100 px-2 py-1 rounded">{{ config.totalHorasMes }} horas</span>
+              </div>
+              <div class="flex justify-between items-center text-sm mt-1">
+                <span class="font-medium">Días especiales:</span>
+                <span class="bg-yellow-100 px-2 py-1 rounded">
+                  {{ contarDiasEspeciales() }} días
+                </span>
+              </div>
+            </div>
+          </div>
+        }
 
         <!-- Estadísticas -->
         <div>
