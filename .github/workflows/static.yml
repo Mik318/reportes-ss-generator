@@ -32,7 +32,11 @@ jobs:
         
       - name: Build Angular app
         run: npx ng build --configuration production --base-href /reportes-ss-generator/
-        
+      #run: npx ng build --configuration production --base-href /reportes-ss-generator/
+      #ADD:
+      - name: Copy index.html to 404.html for GitHub Pages
+        run: cp ./dist/reportes-ss-generator/browser/index.html ./dist/reportes-ss-generator/browser/404.html
+ 
       - name: Setup Pages
         uses: actions/configure-pages@v4
         
