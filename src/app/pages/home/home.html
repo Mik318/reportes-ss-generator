@@ -10,7 +10,7 @@
 
   <div class="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
     <a
-      routerLink="/configuracion"
+      [routerLink]="'/configuracion'"
       class="group bg-white rounded-xl shadow-md hover:shadow-lg transition-all
       duration-200 p-8 border border-gray-200 hover:border-green-300"
     >
@@ -63,18 +63,6 @@
           <span class="text-xs text-gray-500">{{ item.timeAgo }}</span>
         </div>
       }
-<!--      <div-->
-<!--        *ngFor="let item of recentActivity"-->
-<!--        class="flex items-center justify-between py-2"-->
-<!--        [class.border-b]="!item.isLast"-->
-<!--        [class.border-gray-100]="!item.isLast"-->
-<!--      >-->
-<!--        <div class="flex items-center space-x-3">-->
-<!--          <span class="material-icons text-gray-400" style="font-size: 16px;">description</span>-->
-<!--          <span class="text-sm text-gray-600">{{ item.title }}</span>-->
-<!--        </div>-->
-<!--        <span class="text-xs text-gray-500">{{ item.timeAgo }}</span>-->
-<!--      </div>-->
     </div>
   </div>
 </div>
