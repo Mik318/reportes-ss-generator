@@ -137,13 +137,45 @@ export class Configuracion {
     form.getTextField('Carrera').setText(this.config.carrera);
     form.getTextField('Boleta').setText(this.config.boleta);
 
-    // Campos de la Tabla de Asistencia
-    this.config.asistencia.forEach((dia, i) => {
-      form.getTextField(`Fecha${i + 1}`).setText(this.formatearFechaEspanol(dia.fecha));
-      form.getTextField(`Hora de Entrada${i + 1}`).setText(dia.horaEntrada);
-      form.getTextField(`Hora de Salida${i + 1}`).setText(dia.horaSalida);
-      form.getTextField(`Horas por día${i + 1}`).setText(dia.horasPorDia);
-    });
+    // Campos de la Tabla de Asistencia - Limitar a los campos disponibles
+    const maxCampos = this.obtenerMaximoCamposDisponibles(form);
+    const diasAMostrar = Math.min(this.config.asistencia.length, maxCampos);
+
+    console.log(`PDF soporta máximo ${maxCampos} campos. Días a mostrar: ${diasAMostrar} de ${this.config.asistencia.length}`);
+
+    for (let i = 0; i < diasAMostrar; i++) {
+      const dia = this.config.asistencia[i];
+      try {
+        const campoFecha = `Fecha${i + 1}`;
+        const campoEntrada = `Hora de Entrada${i + 1}`;
+        const campoSalida = `Hora de Salida${i + 1}`;
+        const campoHoras = `Horas por día${i + 1}`;
+
+        // Verificar y escribir cada campo si existe
+        if (this.campoExiste(form, campoFecha)) {
+          form.getTextField(campoFecha).setText(this.formatearFechaEspanol(dia.fecha));
+        }
+        if (this.campoExiste(form, campoEntrada)) {
+          form.getTextField(campoEntrada).setText(dia.horaEntrada);
+        }
+        if (this.campoExiste(form, campoSalida)) {
+          form.getTextField(campoSalida).setText(dia.horaSalida);
+        }
+        if (this.campoExiste(form, campoHoras)) {
+          form.getTextField(campoHoras).setText(dia.horasPorDia);
+        }
+      } catch (error) {
+        console.warn(`Error al escribir día ${i + 1}:`, error);
+        break;
+      }
+    }
+
+    // Mostrar advertencia si hay más días que campos disponibles
+    if (this.config.asistencia.length > maxCampos) {
+      const diasFaltantes = this.config.asistencia.length - maxCampos;
+      console.warn(`⚠️ El PDF solo soporta ${maxCampos} días, faltan ${diasFaltantes} días por mostrar.`);
+      alert(`⚠️ Advertencia: El PDF actual solo puede mostrar ${maxCampos} días.\n\nSe necesitan ${diasFaltantes} campos adicionales para mostrar todos los días del período.\n\n¿Te gustaría que se cree un nuevo PDF con más campos?`);
+    }
 
     // Totales
     form.getTextField('Horas por díaTOTAL DE HORAS PRESTADAS POR MES').setText(this.config.totalHorasMes);
@@ -156,6 +188,33 @@ export class Configuracion {
 
     const iframe = document.querySelector('iframe');
     if (iframe) iframe.src = urlBlob;
+  }
+
+  // Método auxiliar para verificar si un campo existe
+  campoExiste(form: any, nombreCampo: string): boolean {
+    try {
+      form.getField(nombreCampo);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  // Método para determinar el máximo número de campos disponibles
+  obtenerMaximoCamposDisponibles(form: any): number {
+    let maxCampos = 0;
+
+    // Probar hasta encontrar el máximo número de campos Fecha disponibles
+    for (let i = 1; i <= 50; i++) { // Probar hasta 50 campos
+      if (this.campoExiste(form, `Fecha${i}`)) {
+        maxCampos = i;
+      } else {
+        break;
+      }
+    }
+
+    console.log(`Máximo de campos detectados: ${maxCampos}`);
+    return maxCampos;
   }
 
   async listFormFields() {
@@ -208,11 +267,21 @@ export class Configuracion {
           periodoFin = fechaFin.clone();
         }
 
+        // Si es el reporte 7, extender hasta la fecha final del servicio
+        if (numeroReporte === 7) {
+          periodoFin = fechaFin.clone();
+        }
+
         this.reportePeriodos.push({
           numero: numeroReporte,
           del: periodoInicio.format('YYYY-MM-DD'),
           al: periodoFin.format('YYYY-MM-DD')
         });
+
+        // Limitar a máximo 7 reportes
+        if (numeroReporte >= 7) {
+          break;
+        }
 
         numeroReporte++;
         fechaActual = fechaActual.add(1, 'month').startOf('month');
@@ -238,11 +307,21 @@ export class Configuracion {
           periodoFin = fechaFin.clone();
         }
 
+        // Si es el reporte 7, extender hasta la fecha final del servicio
+        if (numeroReporte === 7) {
+          periodoFin = fechaFin.clone();
+        }
+
         this.reportePeriodos.push({
           numero: numeroReporte,
           del: periodoInicio.format('YYYY-MM-DD'),
           al: periodoFin.format('YYYY-MM-DD')
         });
+
+        // Limitar a máximo 7 reportes
+        if (numeroReporte >= 7) {
+          break;
+        }
 
         numeroReporte++;
 
