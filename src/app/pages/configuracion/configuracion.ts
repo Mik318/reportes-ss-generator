@@ -1,8 +1,9 @@
-import {Component} from '@angular/core';
+import {Component, LOCALE_ID} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {PDFDocument, rgb, StandardFonts} from 'pdf-lib';
 import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
 import moment from 'moment';
+import 'moment/locale/es';
 import {DatePipe, registerLocaleData} from '@angular/common';
 import localeEs from '@angular/common/locales/es';
 
@@ -49,6 +50,9 @@ export interface FechaEspecial {
     FormsModule,
     DatePipe
   ],
+  providers: [
+    { provide: LOCALE_ID, useValue: 'es' }
+  ],
   templateUrl: './configuracion.html',
   styleUrl: './configuracion.scss'
 })
@@ -74,8 +78,9 @@ export class Configuracion {
   }
 
   formatearFechaEspanol(fecha: string): string {
-    // Asegura que moment use el locale español para el mes
-    return moment(fecha).locale('es').format('DD [de] MMMM [de] YYYY');
+    // Configurar moment a español y formatear
+    moment.locale('es');
+    return moment(fecha).format('DD [de] MMMM [de] YYYY');
   }
 
   contarDiasEspeciales(): number {
