@@ -9,106 +9,156 @@
       <!-- Formulario -->
       <div class="space-y-6">
 
-        <!-- Tipo de Reporte y Departamento -->
-        <div class="grid md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Tipo de Reporte</label>
-            <select [(ngModel)]="config.reportType"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
-              <option value="diario">Diario</option>
-              <option value="semanal">Semanal</option>
-              <option value="mensual">Mensual</option>
-              <option value="trimestral">Trimestral</option>
-              <option value="anual">Anual</option>
-            </select>
+        <!-- Información del Prestador -->
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Información del Prestador</h3>
+
+          <div class="grid md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Reporte No.</label>
+              <input type="text" [(ngModel)]="config.reporteNo"
+                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Boleta</label>
+              <input type="text" [(ngModel)]="config.boleta"
+                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+            </div>
           </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Departamento</label>
-            <select [(ngModel)]="config.department"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
-              <option value="general">General</option>
-              <option value="asistencia-social">Asistencia Social</option>
-              <option value="trabajo-social">Trabajo Social</option>
-              <option value="psicologia">Psicología</option>
-              <option value="medico">Médico</option>
-            </select>
+
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Nombre del Prestador</label>
+            <input type="text" [(ngModel)]="config.nombrePrestador"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+          </div>
+
+          <div class="grid md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Unidad Académica</label>
+              <input type="text" [(ngModel)]="config.unidadAcademica"
+                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Carrera</label>
+              <input type="text" [(ngModel)]="config.carrera"
+                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+            </div>
+          </div>
+
+          <div class="grid md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Periodo del</label>
+              <input type="date" [(ngModel)]="config.periodoDel"
+                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">al</label>
+              <input type="date" [(ngModel)]="config.periodoAl"
+                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+            </div>
           </div>
         </div>
+
+        <!-- Tipo de Reporte y Departamento -->
+<!--        <div class="grid md:grid-cols-2 gap-4">-->
+<!--          <div>-->
+<!--            <label class="block text-sm font-medium text-gray-700 mb-2">Tipo de Reporte</label>-->
+<!--            <select [(ngModel)]="config.reportType"-->
+<!--                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">-->
+<!--              <option value="diario">Diario</option>-->
+<!--              <option value="semanal">Semanal</option>-->
+<!--              <option value="mensual">Mensual</option>-->
+<!--              <option value="trimestral">Trimestral</option>-->
+<!--              <option value="anual">Anual</option>-->
+<!--            </select>-->
+<!--          </div>-->
+<!--          <div>-->
+<!--            <label class="block text-sm font-medium text-gray-700 mb-2">Departamento</label>-->
+<!--            <select [(ngModel)]="config.department"-->
+<!--                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">-->
+<!--              <option value="general">General</option>-->
+<!--              <option value="asistencia-social">Asistencia Social</option>-->
+<!--              <option value="trabajo-social">Trabajo Social</option>-->
+<!--              <option value="psicologia">Psicología</option>-->
+<!--              <option value="medico">Médico</option>-->
+<!--            </select>-->
+<!--          </div>-->
+<!--        </div>-->
 
         <!-- Rango de Fechas -->
-        <div class="grid md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              <i class="lucide-calendar inline h-4 w-4 mr-1"></i>
-              Fecha Inicio
-            </label>
-            <input type="date" [(ngModel)]="config.startDate"
-                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2
-                   focus:ring-green-500 focus:border-transparent bg-yellow-50">
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              <i class="lucide-calendar inline h-4 w-4 mr-1"></i>
-              Fecha Fin
-            </label>
-            <input type="date" [(ngModel)]="config.endDate"
-                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2
-                   focus:ring-green-500 focus:border-transparent bg-yellow-50">
-          </div>
-        </div>
+<!--        <div class="grid md:grid-cols-2 gap-4">-->
+<!--          <div>-->
+<!--            <label class="block text-sm font-medium text-gray-700 mb-2">-->
+<!--              <i class="lucide-calendar inline h-4 w-4 mr-1"></i>-->
+<!--              Fecha Inicio-->
+<!--            </label>-->
+<!--            <input type="date" [(ngModel)]="config.startDate"-->
+<!--                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2-->
+<!--                   focus:ring-green-500 focus:border-transparent bg-yellow-50">-->
+<!--          </div>-->
+<!--          <div>-->
+<!--            <label class="block text-sm font-medium text-gray-700 mb-2">-->
+<!--              <i class="lucide-calendar inline h-4 w-4 mr-1"></i>-->
+<!--              Fecha Fin-->
+<!--            </label>-->
+<!--            <input type="date" [(ngModel)]="config.endDate"-->
+<!--                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2-->
+<!--                   focus:ring-green-500 focus:border-transparent bg-yellow-50">-->
+<!--          </div>-->
+<!--        </div>-->
 
         <!-- Fechas Inhábiles -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Ingresar Fechas Inhábiles</label>
-          <div class="flex space-x-2 mb-3">
-            <input type="date" [(ngModel)]="newUnavailableDate"
-                   class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2
-                   focus:ring-green-500 focus:border-transparent bg-yellow-50">
-            <button (click)="addUnavailableDate()"
-                    class="px-4 py-2 bg-yellow-500 text-white rounded-lg
-                    hover:bg-yellow-600 transition-colors">
-              Agregar
-            </button>
-          </div>
-          <div class="flex flex-wrap gap-2">
-            @for (date of config.unavailableDates; track date) {
-              <div
-                class="inline-flex items-center px-3 py-1 bg-yellow-100
-                    text-yellow-800 text-sm rounded-full">
-                {{ date }}
-                <button (click)="removeDate(date,'unavailable')"
-                        class="ml-2 text-yellow-600 hover:text-yellow-800">×
-                </button>
-              </div>
-            }
-          </div>
-        </div>
+<!--        <div>-->
+<!--          <label class="block text-sm font-medium text-gray-700 mb-2">Ingresar Fechas Inhábiles</label>-->
+<!--          <div class="flex space-x-2 mb-3">-->
+<!--            <input type="date" [(ngModel)]="newUnavailableDate"-->
+<!--                   class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2-->
+<!--                   focus:ring-green-500 focus:border-transparent bg-yellow-50">-->
+<!--            <button (click)="addUnavailableDate()"-->
+<!--                    class="px-4 py-2 bg-yellow-500 text-white rounded-lg-->
+<!--                    hover:bg-yellow-600 transition-colors">-->
+<!--              Agregar-->
+<!--            </button>-->
+<!--          </div>-->
+<!--          <div class="flex flex-wrap gap-2">-->
+<!--            @for (date of config.unavailableDates; track date) {-->
+<!--              <div-->
+<!--                class="inline-flex items-center px-3 py-1 bg-yellow-100-->
+<!--                    text-yellow-800 text-sm rounded-full">-->
+<!--                {{ date }}-->
+<!--                <button (click)="removeDate(date,'unavailable')"-->
+<!--                        class="ml-2 text-yellow-600 hover:text-yellow-800">×-->
+<!--                </button>-->
+<!--              </div>-->
+<!--            }-->
+<!--          </div>-->
+<!--        </div>-->
 
         <!-- Fechas de Vacaciones -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Ingresar Fechas de Vacaciones</label>
-          <div class="flex space-x-2 mb-3">
-            <input type="date" [(ngModel)]="newVacationDate"
-                   class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2
-                   focus:ring-green-500 focus:border-transparent bg-yellow-50">
-            <button (click)="addVacationDate()"
-                    class="px-4 py-2 bg-yellow-500 text-white rounded-lg
-                    hover:bg-yellow-600 transition-colors">
-              Agregar
-            </button>
-          </div>
-          <div class="flex flex-wrap gap-2">
-            @for (date of config.vacationDates; track date) {
-              <div class="inline-flex items-center px-3 py-1 bg-yellow-100
-              text-yellow-800 text-sm rounded-full">
-                {{ date }}
-                <button (click)="removeDate(date,'vacation')"
-                        class="ml-2 text-yellow-600 hover:text-yellow-800">×
-                </button>
-              </div>
-            }
-          </div>
-        </div>
+<!--        <div>-->
+<!--          <label class="block text-sm font-medium text-gray-700 mb-2">Ingresar Fechas de Vacaciones</label>-->
+<!--          <div class="flex space-x-2 mb-3">-->
+<!--            <input type="date" [(ngModel)]="newVacationDate"-->
+<!--                   class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2-->
+<!--                   focus:ring-green-500 focus:border-transparent bg-yellow-50">-->
+<!--            <button (click)="addVacationDate()"-->
+<!--                    class="px-4 py-2 bg-yellow-500 text-white rounded-lg-->
+<!--                    hover:bg-yellow-600 transition-colors">-->
+<!--              Agregar-->
+<!--            </button>-->
+<!--          </div>-->
+<!--          <div class="flex flex-wrap gap-2">-->
+<!--            @for (date of config.vacationDates; track date) {-->
+<!--              <div class="inline-flex items-center px-3 py-1 bg-yellow-100-->
+<!--              text-yellow-800 text-sm rounded-full">-->
+<!--                {{ date }}-->
+<!--                <button (click)="removeDate(date,'vacation')"-->
+<!--                        class="ml-2 text-yellow-600 hover:text-yellow-800">×-->
+<!--                </button>-->
+<!--              </div>-->
+<!--            }-->
+<!--          </div>-->
+<!--        </div>-->
 
         <!-- Estadísticas -->
         <div>
@@ -125,6 +175,13 @@
                 class="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2">
           <i class="lucide-eye h-5 w-5"></i>
           <span>Generar Vista Previa</span>
+        </button>
+
+        <!-- Botón para listar campos del PDF -->
+        <button (click)="listFormFields()"
+                class="w-full px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center space-x-2">
+          <i class="lucide-list h-5 w-5"></i>
+          <span>Listar Campos del PDF</span>
         </button>
       </div>
 

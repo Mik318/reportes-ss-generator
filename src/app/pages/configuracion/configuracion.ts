@@ -2,6 +2,7 @@ import {Component} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {PDFDocument, rgb, StandardFonts} from 'pdf-lib';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import moment from 'moment';
 
 export interface ReportConfig {
   startDate: string;
@@ -62,13 +63,13 @@ export class Configuracion {
     const form = pdfDoc.getForm();
 
     // Información del Prestador y el Reporte
-    form.getTextField('Correspondiente al reporte mensual de actividades No').setText('1');
-    // form.getTextField('UnidadAcademica').setText(this.config.unidadAcademica);
-    // form.getTextField('Carrera').setText(this.config.carrera);
-    // form.getTextField('Boleta').setText(this.config.boleta);
-    // form.getTextField('NoReporteMensual').setText(this.config.noReporteMensual);
-    // form.getTextField('PeriodoDel').setText(this.config.periodoDel);
-    // form.getTextField('PeriodoAl').setText(this.config.periodoAl);
+    form.getTextField('Correspondiente al reporte mensual de actividades No').setText(this.config.noReporteMensual);
+    form.getTextField('Periodo del').setText(moment(this.config.periodoDel).format('DD/MM/YYYY'));
+    form.getTextField('al').setText(moment(this.config.periodoAl).format('DD/MM/YYYY'));
+    form.getTextField('Nombre del Prestador').setText(this.config.nombrePrestador);
+    form.getTextField('Unidad Académica').setText(this.config.unidadAcademica);
+    form.getTextField('Carrera').setText(this.config.carrera);
+    form.getTextField('Boleta').setText(this.config.boleta);
     //
     // // Campos de la Tabla de Asistencia (ejemplo para 5 días)
     // this.config.asistencia.forEach((dia, i) => {
@@ -126,6 +127,7 @@ export interface ReportConfig {
   includeStatistics: boolean;
 
   // Nuevos campos
+  reporteNo: string;
   nombrePrestador: string;
   unidadAcademica: string;
   carrera: string;
@@ -148,6 +150,7 @@ const config: ReportConfig = {
   department: 'Ingeniería',
   includeStatistics: true,
 
+  reporteNo: '001',
   nombrePrestador: 'Juan Pérez',
   unidadAcademica: 'Facultad de Ciencias',
   carrera: 'Ingeniería en Sistemas',
