@@ -1,10 +1,10 @@
-import {Component, LOCALE_ID} from '@angular/core';
-import {FormsModule} from '@angular/forms';
-import {PDFDocument, rgb, StandardFonts} from 'pdf-lib';
-import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
+import { Component, LOCALE_ID } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import moment from 'moment';
 import 'moment/locale/es';
-import {DatePipe, registerLocaleData} from '@angular/common';
+import { DatePipe, registerLocaleData } from '@angular/common';
 import localeEs from '@angular/common/locales/es';
 
 // Registrar el locale español
@@ -46,24 +46,20 @@ export interface FechaEspecial {
 
 @Component({
   selector: 'app-configuracion',
-  imports: [
-    FormsModule,
-    DatePipe
-  ],
-  providers: [
-    { provide: LOCALE_ID, useValue: 'es' }
-  ],
+  imports: [FormsModule, DatePipe],
+  providers: [{ provide: LOCALE_ID, useValue: 'es' }],
   templateUrl: './configuracion.html',
-  styleUrl: './configuracion.scss'
+  styleUrl: './configuracion.scss',
 })
 export class Configuracion {
   config: ReportConfig = config;
 
   formFields: string[] = [];
-  reportePeriodos: { numero: number, del: string, al: string }[] = [];
+  reportePeriodos: { numero: number; del: string; al: string }[] = [];
   fechasLaborables: string[] = [];
   fechasEspeciales: FechaEspecial[] = [];
   csvFile: File | null = null;
+  syncHorarios: boolean = false;
 
   diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
   horariosServicio = [
@@ -76,8 +72,7 @@ export class Configuracion {
 
   pdfUrl: SafeResourceUrl | null = null;
 
-  constructor(private sanitizer: DomSanitizer) {
-  }
+  constructor(private sanitizer: DomSanitizer) {}
 
   formatearFechaEspanol(fecha: string): string {
     // Configurar moment a español y formatear
@@ -87,7 +82,7 @@ export class Configuracion {
 
   contarDiasEspeciales(): number {
     if (!this.config.asistencia) return 0;
-    return this.config.asistencia.filter(dia => dia.horasPorDia === '0').length;
+    return this.config.asistencia.filter((dia) => dia.horasPorDia === '0').length;
   }
 
   calcularHorasPorDia(horaEntrada: string, horaSalida: string): string {
@@ -106,10 +101,10 @@ export class Configuracion {
     // Suma las horas de todos los reportes generados hasta el actual
     let acumulado = 0;
     for (let i = 1; i <= this.config.reporteActual; i++) {
-      const periodo = this.reportePeriodos.find(r => r.numero === i);
+      const periodo = this.reportePeriodos.find((r) => r.numero === i);
       if (periodo) {
         const fechasLaborables = this.generarFechasLaborables(periodo.del, periodo.al);
-        fechasLaborables.forEach(fecha => {
+        fechasLaborables.forEach((fecha) => {
           const fechaEspecial = this.esFechaEspecial(fecha);
           if (!fechaEspecial) {
             // Día normal, calcula el horario según el día de la semana
@@ -132,12 +127,14 @@ export class Configuracion {
       ? 'assets/control-asistencia-test.pdf'
       : 'assets/control-asistencia.pdf';
 
-    const existingPdfBytes = await fetch(url).then(res => res.arrayBuffer());
+    const existingPdfBytes = await fetch(url).then((res) => res.arrayBuffer());
     const pdfDoc = await PDFDocument.load(existingPdfBytes);
     const form = pdfDoc.getForm();
 
     // Información del Prestador y el Reporte
-    form.getTextField('Correspondiente al reporte mensual de actividades No').setText(this.config.noReporteMensual);
+    form
+      .getTextField('Correspondiente al reporte mensual de actividades No')
+      .setText(this.config.noReporteMensual);
     form.getTextField('Periodo del').setText(this.formatearFechaEspanol(this.config.periodoDel));
     form.getTextField('al').setText(this.formatearFechaEspanol(this.config.periodoAl));
     form.getTextField('Nombre del Prestador').setText(this.config.nombrePrestador);
@@ -149,7 +146,9 @@ export class Configuracion {
     const maxCampos = this.obtenerMaximoCamposDisponibles(form);
     const diasAMostrar = Math.min(this.config.asistencia.length, maxCampos);
 
-    console.log(`PDF soporta máximo ${maxCampos} campos. Días a mostrar: ${diasAMostrar} de ${this.config.asistencia.length}`);
+    console.log(
+      `PDF soporta máximo ${maxCampos} campos. Días a mostrar: ${diasAMostrar} de ${this.config.asistencia.length}`,
+    );
 
     for (let i = 0; i < diasAMostrar; i++) {
       const dia = this.config.asistencia[i];
@@ -181,17 +180,25 @@ export class Configuracion {
     // Mostrar advertencia si hay más días que campos disponibles
     if (this.config.asistencia.length > maxCampos) {
       const diasFaltantes = this.config.asistencia.length - maxCampos;
-      console.warn(`El PDF solo soporta ${maxCampos} días, faltan ${diasFaltantes} días por mostrar.`);
-      alert(`Advertencia: El PDF actual solo puede mostrar ${maxCampos} días.\n\nSe necesitan ${diasFaltantes} campos adicionales para mostrar todos los días del período.\n\n¿Te gustaría que se cree un nuevo PDF con más campos?`);
+      console.warn(
+        `El PDF solo soporta ${maxCampos} días, faltan ${diasFaltantes} días por mostrar.`,
+      );
+      alert(
+        `Advertencia: El PDF actual solo puede mostrar ${maxCampos} días.\n\nSe necesitan ${diasFaltantes} campos adicionales para mostrar todos los días del período.\n\n¿Te gustaría que se cree un nuevo PDF con más campos?`,
+      );
     }
 
     // Totales
-    form.getTextField('Horas por díaTOTAL DE HORAS PRESTADAS POR MES').setText(this.config.totalHorasMes);
+    form
+      .getTextField('Horas por díaTOTAL DE HORAS PRESTADAS POR MES')
+      .setText(this.config.totalHorasMes);
     this.config.totalHorasAcumuladas = this.calcularHorasAcumuladas();
-    form.getTextField('Horas por díaTOTAL DE HORAS PRESTADAS ACUMULADAS').setText(this.config.totalHorasAcumuladas);
+    form
+      .getTextField('Horas por díaTOTAL DE HORAS PRESTADAS ACUMULADAS')
+      .setText(this.config.totalHorasAcumuladas);
 
     const pdfBytes = await pdfDoc.save();
-    const blob = new Blob([new Uint8Array(pdfBytes)], {type: 'application/pdf'});
+    const blob = new Blob([new Uint8Array(pdfBytes)], { type: 'application/pdf' });
     const urlBlob = URL.createObjectURL(blob);
 
     // Propiedad pdfUrl para que el iframe lo use
@@ -213,7 +220,8 @@ export class Configuracion {
     let maxCampos = 0;
 
     // Probar hasta encontrar el máximo número de campos Fecha disponibles
-    for (let i = 1; i <= 50; i++) { // Probar hasta 50 campos
+    for (let i = 1; i <= 50; i++) {
+      // Probar hasta 50 campos
       if (this.campoExiste(form, `Fecha${i}`)) {
         maxCampos = i;
       } else {
@@ -228,12 +236,12 @@ export class Configuracion {
   async listFormFields() {
     try {
       const url = 'assets/control-asistencia.pdf';
-      const existingPdfBytes = await fetch(url).then(res => res.arrayBuffer());
+      const existingPdfBytes = await fetch(url).then((res) => res.arrayBuffer());
       const pdfDoc = await PDFDocument.load(existingPdfBytes);
       const form = pdfDoc.getForm();
 
       const fields = form.getFields();
-      this.formFields = fields.map(field => field.getName());
+      this.formFields = fields.map((field) => field.getName());
 
       console.log('Campos del formulario PDF:', this.formFields);
     } catch (error) {
@@ -283,7 +291,7 @@ export class Configuracion {
         this.reportePeriodos.push({
           numero: numeroReporte,
           del: periodoInicio.format('YYYY-MM-DD'),
-          al: periodoFin.format('YYYY-MM-DD')
+          al: periodoFin.format('YYYY-MM-DD'),
         });
 
         // Limitar a máximo 7 reportes
@@ -323,7 +331,7 @@ export class Configuracion {
         this.reportePeriodos.push({
           numero: numeroReporte,
           del: periodoInicio.format('YYYY-MM-DD'),
-          al: periodoFin.format('YYYY-MM-DD')
+          al: periodoFin.format('YYYY-MM-DD'),
         });
 
         // Limitar a máximo 7 reportes
@@ -412,7 +420,7 @@ export class Configuracion {
               const fechaFormateada = `${fechaParts[2]}-${fechaParts[1].padStart(2, '0')}-${fechaParts[0].padStart(2, '0')}`;
               this.fechasEspeciales.push({
                 fecha: fechaFormateada,
-                tipoFecha: tipoFecha
+                tipoFecha: tipoFecha,
               });
             }
           }
@@ -422,10 +430,10 @@ export class Configuracion {
   }
 
   esFechaEspecial(fecha: string): FechaEspecial | null {
-    return this.fechasEspeciales.find(fe => fe.fecha === fecha) || null;
+    return this.fechasEspeciales.find((fe) => fe.fecha === fecha) || null;
   }
 
-  seleccionarPeriodo(periodo: { numero: number, del: string, al: string }) {
+  seleccionarPeriodo(periodo: { numero: number; del: string; al: string }) {
     this.config.reporteActual = periodo.numero;
     this.config.noReporteMensual = periodo.numero.toString();
     this.config.periodoDel = periodo.del;
@@ -435,7 +443,7 @@ export class Configuracion {
     this.fechasLaborables = this.generarFechasLaborables(periodo.del, periodo.al);
 
     // Actualizar array de asistencia con las fechas laborables y horarios según el día de la semana
-    this.config.asistencia = this.fechasLaborables.map(fecha => {
+    this.config.asistencia = this.fechasLaborables.map((fecha) => {
       const fechaEspecial = this.esFechaEspecial(fecha);
 
       if (fechaEspecial) {
@@ -444,7 +452,7 @@ export class Configuracion {
           fecha: fecha,
           horaEntrada: fechaEspecial.tipoFecha,
           horaSalida: fechaEspecial.tipoFecha,
-          horasPorDia: '0'
+          horasPorDia: '0',
         };
       } else {
         // Día normal de trabajo: asignar horario según el día de la semana
@@ -458,17 +466,31 @@ export class Configuracion {
           fecha: fecha,
           horaEntrada: horario.entrada,
           horaSalida: horario.salida,
-          horasPorDia: horasPorDia
+          horasPorDia: horasPorDia,
         };
       }
     });
 
     // Calcular total de horas del mes (solo días normales)
     const horasNormales = this.config.asistencia
-      .filter(dia => dia.horasPorDia !== '0')
+      .filter((dia) => dia.horasPorDia !== '0')
       .reduce((total, dia) => total + parseFloat(dia.horasPorDia), 0);
 
     this.config.totalHorasMes = horasNormales.toString();
+  }
+
+  // Add this new method
+  onHorarioInput(event: Event, type: 'entrada' | 'salida') {
+    if (!this.syncHorarios) {
+      return;
+    }
+
+    const target = event.target as HTMLInputElement;
+    const newValue = target.value;
+
+    this.horariosServicio.forEach((horario) => {
+      horario[type] = newValue;
+    });
   }
 
   // Método público para obtener la URL segura del PDF
@@ -476,14 +498,13 @@ export class Configuracion {
     if (this.pdfUrl) {
       return this.pdfUrl;
     }
-    const pdfPath = this.config.asistencia.length > 24
-      ? 'assets/control-asistencia-test.pdf'
-      : 'assets/control-asistencia.pdf';
+    const pdfPath =
+      this.config.asistencia.length > 24
+        ? 'assets/control-asistencia-test.pdf'
+        : 'assets/control-asistencia.pdf';
     return this.sanitizer.bypassSecurityTrustResourceUrl(pdfPath);
   }
-
 }
-
 
 export interface AsistenciaDia {
   fecha: string;
@@ -514,11 +535,11 @@ const config: ReportConfig = {
   fechaFinServicio: '2024-11-30',
   reporteActual: 1,
   asistencia: [
-    {fecha: '2024-06-01', horaEntrada: '08:00', horaSalida: '12:00', horasPorDia: '4'},
-    {fecha: '2024-06-02', horaEntrada: '08:00', horaSalida: '12:00', horasPorDia: '4'},
-    {fecha: '2024-06-03', horaEntrada: '08:00', horaSalida: '12:00', horasPorDia: '4'},
-    {fecha: '2024-06-04', horaEntrada: '08:00', horaSalida: '12:00', horasPorDia: '4'},
-    {fecha: '2024-06-05', horaEntrada: '08:00', horaSalida: '12:00', horasPorDia: '4'},
+    { fecha: '2024-06-01', horaEntrada: '08:00', horaSalida: '12:00', horasPorDia: '4' },
+    { fecha: '2024-06-02', horaEntrada: '08:00', horaSalida: '12:00', horasPorDia: '4' },
+    { fecha: '2024-06-03', horaEntrada: '08:00', horaSalida: '12:00', horasPorDia: '4' },
+    { fecha: '2024-06-04', horaEntrada: '08:00', horaSalida: '12:00', horasPorDia: '4' },
+    { fecha: '2024-06-05', horaEntrada: '08:00', horaSalida: '12:00', horasPorDia: '4' },
   ],
   totalHorasMes: '88',
   totalHorasAcumuladas: '120',

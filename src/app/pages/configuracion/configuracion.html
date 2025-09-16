@@ -13,77 +13,113 @@
           <h3 class="text-lg font-medium text-gray-900 mb-4">Información del Prestador</h3>
 
           <div class="grid md:grid-cols-2 gap-4 mb-4">
-<!--            <div>-->
-<!--              <label class="block text-sm font-medium text-gray-700 mb-2">Reporte No.</label>-->
-<!--              <input type="text" [(ngModel)]="config.reporteNo"-->
-<!--                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">-->
-<!--            </div>-->
+            <!--            <div>-->
+            <!--              <label class="block text-sm font-medium text-gray-700 mb-2">Reporte No.</label>-->
+            <!--              <input type="text" [(ngModel)]="config.reporteNo"-->
+            <!--                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">-->
+            <!--            </div>-->
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">Boleta</label>
-              <input type="text" [(ngModel)]="config.boleta"
-                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+              <input
+                type="text"
+                [(ngModel)]="config.boleta"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              />
             </div>
           </div>
 
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 mb-2">Nombre del Prestador</label>
-            <input type="text" [(ngModel)]="config.nombrePrestador"
-                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+            <input
+              type="text"
+              [(ngModel)]="config.nombrePrestador"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            />
           </div>
 
           <div class="grid md:grid-cols-2 gap-4 mb-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">Unidad Académica</label>
-              <input type="text" [(ngModel)]="config.unidadAcademica"
-                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+              <input
+                type="text"
+                [(ngModel)]="config.unidadAcademica"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              />
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">Carrera</label>
-              <input type="text" [(ngModel)]="config.carrera"
-                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+              <input
+                type="text"
+                [(ngModel)]="config.carrera"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              />
             </div>
           </div>
 
           <div class="grid md:grid-cols-2 gap-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">Periodo del</label>
-              <input type="date" [(ngModel)]="config.periodoDel" readonly
-                     class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed">
+              <input
+                type="date"
+                [(ngModel)]="config.periodoDel"
+                readonly
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
+              />
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">al</label>
-              <input type="date" [(ngModel)]="config.periodoAl" readonly
-                     class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed">
+              <input
+                type="date"
+                [(ngModel)]="config.periodoAl"
+                readonly
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
+              />
             </div>
           </div>
         </div>
 
         <!-- Tabla de horarios de servicio social (vertical) -->
-        <div class="bg-gray-50 p-4 rounded-lg mt-6">
+        <div class="bg-gray-50 p-4 rounded-lg mt-6" id="schedule-table">
           <h3 class="text-lg font-medium text-gray-900 mb-4">
-            Horarios de Servicio Social (Lunes a Viernes)</h3>
+            Horarios de Servicio Social (Lunes a Viernes)
+          </h3>
           <div class="grid grid-cols-6 gap-2 items-center">
             <div class="font-semibold text-xs text-gray-700 text-center">Día</div>
             @for (dia of diasSemana; let i = $index; track dia;) {
-              <div class="text-sm text-gray-900 text-center">{{ dia }}</div>
+            <div class="text-sm text-gray-900 text-center">{{ dia }}</div>
             }
             <div class="font-semibold text-xs text-gray-700 text-center mt-2">Hora Entrada</div>
             @for (dia of diasSemana; let i = $index; track dia;) {
-              <div class="text-center">
-                <input type="time" [(ngModel)]="horariosServicio[i].entrada"
-                       class="border rounded px-2 py-1 w-24">
-              </div>
+            <div class="text-center">
+              <input
+                type="time"
+                [(ngModel)]="horariosServicio[i].entrada"
+                class="border rounded px-2 py-1 w-24"
+                (input)="onHorarioInput($event, 'entrada')"
+              />
+            </div>
             }
             <div class="font-semibold text-xs text-gray-700 text-center mt-2">Hora Salida</div>
             @for (dia of diasSemana; let i = $index; track dia;) {
-              <div class="text-center">
-                <input type="time" [(ngModel)]="horariosServicio[i].salida"
-                       class="border rounded px-2 py-1 w-24">
-              </div>
+            <div class="text-center">
+              <input
+                type="time"
+                [(ngModel)]="horariosServicio[i].salida"
+                (input)="onHorarioInput($event, 'salida')"
+                class="border rounded px-2 py-1 w-24"
+              />
+            </div>
             }
           </div>
+          <label class="block text-sm font-medium text-gray-700 mb-2 mt-5">
+            Modificar todos los horarios al mismo tiempo
+            <input
+              type="checkbox"
+              class="border rounded px-2 py-1 w-24"
+              [(ngModel)]="syncHorarios"
+            />
+          </label>
         </div>
-
 
         <!-- Archivo CSV de Fechas Especiales -->
         <div class="bg-yellow-50 p-4 rounded-lg">
@@ -93,165 +129,198 @@
             <label class="block text-sm font-medium text-gray-700 mb-2">
               Subir archivo CSV con fechas especiales
             </label>
-            <input type="file"
-                   accept=".csv"
-                   (change)="onFileSelected($event)"
-                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+            <input
+              type="file"
+              accept=".csv"
+              (change)="onFileSelected($event)"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+            />
           </div>
 
           <div class="text-xs text-gray-600 mb-4">
-            <strong>Formato requerido (separado por comas o tabulaciones):</strong><br>
-            <code>fecha,tipo_fecha</code> o <code>fecha&nbsp;&nbsp;&nbsp;&nbsp;tipo_fecha</code><br>
-            <code>18/11/2025,Día inhábil</code><br>
+            <strong>Formato requerido (separado por comas o tabulaciones):</strong><br />
+            <code>fecha,tipo_fecha</code> o <code>fecha&nbsp;&nbsp;&nbsp;&nbsp;tipo_fecha</code
+            ><br />
+            <code>18/11/2025,Día inhábil</code><br />
             <code>19/11/2025,Periodo vacacional</code>
           </div>
 
           @if (fechasEspeciales.length > 0) {
-            <div class="bg-white p-3 rounded border">
-              <h4 class="font-medium text-sm text-gray-900 mb-2">
-                Fechas especiales cargadas ({{ fechasEspeciales.length }})
-              </h4>
-              <div class="max-h-32 overflow-y-auto space-y-1">
-                @for (fecha of fechasEspeciales; track fecha.fecha) {
-                  <div class="flex justify-between items-center text-xs">
-                    <span>{{ formatearFechaEspanol(fecha.fecha) }}</span>
-                    <span class="bg-yellow-100 px-2 py-1 rounded">{{ fecha.tipoFecha }}</span>
-                  </div>
-                }
+          <div class="bg-white p-3 rounded border">
+            <h4 class="font-medium text-sm text-gray-900 mb-2">
+              Fechas especiales cargadas ({{ fechasEspeciales.length }})
+            </h4>
+            <div class="max-h-32 overflow-y-auto space-y-1">
+              @for (fecha of fechasEspeciales; track fecha.fecha) {
+              <div class="flex justify-between items-center text-xs">
+                <span>{{ formatearFechaEspanol(fecha.fecha) }}</span>
+                <span class="bg-yellow-100 px-2 py-1 rounded">{{ fecha.tipoFecha }}</span>
               </div>
+              }
             </div>
+          </div>
           }
         </div>
 
         <!-- Fechas del Servicio Social -->
         <div class="bg-blue-50 p-4 rounded-lg">
-          <h3 class="text-lg font-medium text-gray-900 mb-4">Fechas del Servicio Social (Carta Compromiso)</h3>
+          <h3 class="text-lg font-medium text-gray-900 mb-4">
+            Fechas del Servicio Social (Carta Compromiso)
+          </h3>
 
           <div class="grid md:grid-cols-2 gap-4 mb-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">Fecha de Inicio</label>
-              <input type="date" [(ngModel)]="config.fechaInicioServicio"
-                     (change)="calcularPeriodosReporte()"
-                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <input
+                type="date"
+                [(ngModel)]="config.fechaInicioServicio"
+                (change)="calcularPeriodosReporte()"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">Fecha de Fin</label>
-              <input type="date" [(ngModel)]="config.fechaFinServicio"
-                     (change)="calcularPeriodosReporte()"
-                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <input
+                type="date"
+                [(ngModel)]="config.fechaFinServicio"
+                (change)="calcularPeriodosReporte()"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
             </div>
           </div>
 
           <!-- Botón para calcular periodos -->
-          <button (click)="calcularPeriodosReporte()"
-                  class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+          <button
+            (click)="calcularPeriodosReporte()"
+            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
             Calcular Periodos de Reporte
           </button>
         </div>
 
         <!-- Periodos de Reporte -->
         @if (reportePeriodos.length > 0) {
-          <div class="bg-green-50 p-4 rounded-lg">
-            <h3 class="text-lg font-medium text-gray-900 mb-4">Seleccionar Periodo de Reporte</h3>
-            <div class="space-y-2">
-              @for (periodo of reportePeriodos; track periodo.numero) {
-                <div
-                  class="flex items-center justify-between p-3 border rounded-lg hover:bg-white cursor-pointer transition-colors"
-                  [class.bg-green-100]="config.reporteActual === periodo.numero"
-                  (click)="seleccionarPeriodo(periodo)">
-                  <div class="flex items-center space-x-3">
-                    <input type="radio"
-                           [checked]="config.reporteActual === periodo.numero"
-                           class="text-green-600 focus:ring-green-500">
-                    <span class="font-medium">Reporte #{{ periodo.numero }}</span>
-                  </div>
-                  <div class="text-sm text-gray-600">
-                    Del {{ formatearFechaEspanol(periodo.del) }} al {{ formatearFechaEspanol(periodo.al) }}
-                  </div>
-                </div>
-              }
+        <div class="bg-green-50 p-4 rounded-lg">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Seleccionar Periodo de Reporte</h3>
+          <div class="space-y-2">
+            @for (periodo of reportePeriodos; track periodo.numero) {
+            <div
+              class="flex items-center justify-between p-3 border rounded-lg hover:bg-white cursor-pointer transition-colors"
+              [class.bg-green-100]="config.reporteActual === periodo.numero"
+              (click)="seleccionarPeriodo(periodo)"
+            >
+              <div class="flex items-center space-x-3">
+                <input
+                  type="radio"
+                  [checked]="config.reporteActual === periodo.numero"
+                  class="text-green-600 focus:ring-green-500"
+                />
+                <span class="font-medium">Reporte #{{ periodo.numero }}</span>
+              </div>
+              <div class="text-sm text-gray-600">
+                Del {{ formatearFechaEspanol(periodo.del) }} al {{ formatearFechaEspanol(periodo.al)
+                }}
+              </div>
             </div>
+            }
           </div>
+        </div>
         }
 
         <!-- Fechas Laborables del Periodo -->
         @if (fechasLaborables.length > 0) {
-          <div class="bg-purple-50 p-4 rounded-lg">
-            <h3 class="text-lg font-medium text-gray-900 mb-4">
-              Fechas del Reporte #{{ config.reporteActual }}
-              <span class="text-sm font-normal text-gray-600">({{ fechasLaborables.length }} días)</span>
-            </h3>
+        <div class="bg-purple-50 p-4 rounded-lg">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">
+            Fechas del Reporte #{{ config.reporteActual }}
+            <span class="text-sm font-normal text-gray-600"
+              >({{ fechasLaborables.length }} días)</span
+            >
+          </h3>
 
-            <!-- Advertencia si hay muchos días -->
-            @if (config.asistencia && config.asistencia.length > 24) {
-              <div class="mb-4 p-3 bg-orange-100 border border-orange-400 rounded-lg">
-                <div class="flex items-center">
-                  <svg class="h-5 w-5 text-orange-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                  </svg>
-                  <div class="text-sm text-orange-700">
-                    <strong>Atención:</strong> Este período tiene {{ config.asistencia.length }} días laborables.
-                    Es posible que el PDF no tenga suficientes campos para mostrar todos los días.
-                  </div>
-                </div>
-              </div>
-            }
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-48 overflow-y-auto">
-              @for (dia of config.asistencia; track dia.fecha) {
-                <div class="bg-white p-2 rounded border text-sm">
-                  <div class="font-medium">{{ formatearFechaEspanol(dia.fecha) }}</div>
-                  <div class="text-xs text-gray-500">{{ dia.fecha | date:'EEEE':'':'es' }}</div>
-                  @if (dia.horasPorDia === '0') {
-                    <div class="text-xs text-red-600 font-medium">{{ dia.horaEntrada }}</div>
-                  } @else {
-                    <div class="text-xs text-green-600">{{ dia.horaEntrada }} - {{ dia.horaSalida }}
-                      ({{ dia.horasPorDia }}h)
-                    </div>
-                  }
-                </div>
-              }
-            </div>
-
-            <div class="mt-4 p-3 bg-white rounded border">
-              <div class="flex justify-between items-center text-sm">
-                <span class="font-medium">Total de días:</span>
-                <span class="bg-purple-100 px-2 py-1 rounded">{{ fechasLaborables.length }} días</span>
-              </div>
-              <div class="flex justify-between items-center text-sm mt-1">
-                <span class="font-medium">Total de horas laborales:</span>
-                <span class="bg-purple-100 px-2 py-1 rounded">{{ config.totalHorasMes }} horas</span>
-              </div>
-              <div class="flex justify-between items-center text-sm mt-1">
-                <span class="font-medium">Días especiales:</span>
-                <span class="bg-yellow-100 px-2 py-1 rounded">
-                  {{ contarDiasEspeciales() }} días
-                </span>
+          <!-- Advertencia si hay muchos días -->
+          @if (config.asistencia && config.asistencia.length > 24) {
+          <div class="mb-4 p-3 bg-orange-100 border border-orange-400 rounded-lg">
+            <div class="flex items-center">
+              <svg class="h-5 w-5 text-orange-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fill-rule="evenodd"
+                  d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                  clip-rule="evenodd"
+                ></path>
+              </svg>
+              <div class="text-sm text-orange-700">
+                <strong>Atención:</strong> Este período tiene {{ config.asistencia.length }} días
+                laborables. Es posible que el PDF no tenga suficientes campos para mostrar todos los
+                días.
               </div>
             </div>
           </div>
+          }
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-48 overflow-y-auto">
+            @for (dia of config.asistencia; track dia.fecha) {
+            <div class="bg-white p-2 rounded border text-sm">
+              <div class="font-medium">{{ formatearFechaEspanol(dia.fecha) }}</div>
+              <div class="text-xs text-gray-500">{{ dia.fecha | date:'EEEE':'':'es' }}</div>
+              @if (dia.horasPorDia === '0') {
+              <div class="text-xs text-red-600 font-medium">{{ dia.horaEntrada }}</div>
+              } @else {
+              <div class="text-xs text-green-600">
+                {{ dia.horaEntrada }} - {{ dia.horaSalida }} ({{ dia.horasPorDia }}h)
+              </div>
+              }
+            </div>
+            }
+          </div>
+
+          <div class="mt-4 p-3 bg-white rounded border">
+            <div class="flex justify-between items-center text-sm">
+              <span class="font-medium">Total de días:</span>
+              <span class="bg-purple-100 px-2 py-1 rounded"
+                >{{ fechasLaborables.length }} días</span
+              >
+            </div>
+            <div class="flex justify-between items-center text-sm mt-1">
+              <span class="font-medium">Total de horas laborales:</span>
+              <span class="bg-purple-100 px-2 py-1 rounded">{{ config.totalHorasMes }} horas</span>
+            </div>
+            <div class="flex justify-between items-center text-sm mt-1">
+              <span class="font-medium">Días especiales:</span>
+              <span class="bg-yellow-100 px-2 py-1 rounded">
+                {{ contarDiasEspeciales() }} días
+              </span>
+            </div>
+          </div>
+        </div>
         }
 
         <!-- Estadísticas -->
         <div>
           <label class="flex items-center">
-            <input type="checkbox" [(ngModel)]="config.includeStatistics"
-                   class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+            <input
+              type="checkbox"
+              [(ngModel)]="config.includeStatistics"
+              class="rounded border-gray-300 text-green-600 focus:ring-green-500"
+            />
             <span class="ml-2 text-sm text-gray-700">Incluir estadísticas detalladas</span>
           </label>
         </div>
 
         <!-- Botón Generar -->
-        <button (click)="generateReport()"
-                [disabled]="!config.startDate || !config.endDate"
-                class="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2">
+        <button
+          (click)="generateReport()"
+          [disabled]="!config.startDate || !config.endDate"
+          class="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2"
+        >
           <i class="lucide-eye h-5 w-5"></i>
           <span>Generar Vista Previa</span>
         </button>
 
         <!-- Botón para listar campos del PDF -->
-        <button (click)="listFormFields()"
-                class="w-full px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center space-x-2">
+        <button
+          (click)="listFormFields()"
+          class="w-full px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center space-x-2"
+        >
           <i class="lucide-list h-5 w-5"></i>
           <span>Listar Campos del PDF</span>
         </button>
@@ -260,9 +329,7 @@
       <!-- PDF Preview -->
       <div class="h-min-1/2-screen">
         <h3 class="text-lg font-semibold text-gray-900 mb-4">Vista Previa del Reporte</h3>
-        <iframe
-          [src]="getPdfUrl()"
-          class="w-full h-full"></iframe>
+        <iframe [src]="getPdfUrl()" class="w-full h-full"></iframe>
       </div>
     </div>
   </div>
