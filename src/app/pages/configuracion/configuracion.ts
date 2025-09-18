@@ -1,4 +1,4 @@
-import {Component, computed, LOCALE_ID, model, signal} from '@angular/core';
+import {Component, computed, LOCALE_ID, model, OnInit, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {PDFDocument} from 'pdf-lib';
 import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
@@ -80,7 +80,7 @@ interface ReporteGenerado {
   templateUrl: './configuracion.html',
   styleUrl: './configuracion.scss',
 })
-export class Configuracion {
+export class Configuracion{
   currentStep = signal(1);
   config = signal<ReportConfig>(config);
 
@@ -121,20 +121,29 @@ export class Configuracion {
   constructor(private sanitizer: DomSanitizer) {
   }
 
+
   canProceed = computed(() => {
     switch (this.currentStep()) {
       case 1:
         const s = this.config();
-        // Acceso correcto a las propiedades de la señal
-        return !!(s.boleta && s.nombrePrestador && s.unidadAcademica && s.carrera);
+        // Verifica que todos los campos requeridos estén llenos y válidos
+        return !!(
+          s.boleta?.trim() &&
+          s.nombrePrestador?.trim() &&
+          s.unidadAcademica?.trim() &&
+          s.carrera?.trim() &&
+          s.startDate?.trim() &&
+          s.endDate?.trim()
+        );
       case 2:
-        // Verifica que todos los días tengan entrada y salida
-        return this.horariosServicio.some(day => day.entrada && day.salida);
+        // Verifica que todos los días tengan entrada y salida válidas
+        return this.horariosServicio.every(day => day.entrada?.trim() && day.salida?.trim());
       case 3:
-        return true; // opcional
+        // No es obligatorio tener fechas especiales, siempre puede continuar
+        return true;
       case 4:
-        // Verifica fechas de inicio y fin del servicio social
-        return !!(this.config().startDate && this.config().endDate);
+        // Verifica que existan reportes generados
+        return this.reports().length > 0;
       default:
         return false;
     }
@@ -990,6 +999,31 @@ export class Configuracion {
     const pdfBytes = await pdfDoc.save();
     return new Uint8Array(pdfBytes);
   }
+
+  // Métodos para actualizar los campos del config
+  updateBoleta(value: string) {
+    this.config.set({ ...this.config(), boleta: value });
+  }
+
+  updateNombrePrestador(value: string) {
+    this.config.set({ ...this.config(), nombrePrestador: value });
+  }
+
+  updateUnidadAcademica(value: string) {
+    this.config.set({ ...this.config(), unidadAcademica: value });
+  }
+
+  updateCarrera(value: string) {
+    this.config.set({ ...this.config(), carrera: value });
+  }
+
+  updateStartDate(value: string) {
+    this.config.set({ ...this.config(), startDate: value });
+  }
+
+  updateEndDate(value: string) {
+    this.config.set({ ...this.config(), endDate: value });
+  }
 }
 
 export interface AsistenciaDia {
@@ -1001,30 +1035,24 @@ export interface AsistenciaDia {
 
 // Datos dummy
 const config: ReportConfig = {
-  startDate: '2024-11-04',
-  endDate: '2025-06-04',
-  unavailableDates: ['2024-06-10'],
-  vacationDates: ['2024-06-15'],
-  reportType: 'mensual',
-  department: 'Ingeniería',
-  includeStatistics: true,
+  startDate: '',
+  endDate: '',
+  unavailableDates: [],
+  vacationDates: [],
+  reportType: '',
+  department: '',
+  includeStatistics: false,
 
-  reporteNo: '001',
-  nombrePrestador: 'Juan Pérez',
-  unidadAcademica: 'Facultad de Ciencias',
-  carrera: 'Ingeniería en Sistemas',
-  boleta: '2020123456',
-  noReporteMensual: '1',
-  periodoDel: '2024-06-01',
-  periodoAl: '2024-06-30',
-  reporteActual: 1,
-  asistencia: [
-    {fecha: '2024-06-01', horaEntrada: '08:00', horaSalida: '12:00', horasPorDia: '4'},
-    {fecha: '2024-06-02', horaEntrada: '08:00', horaSalida: '12:00', horasPorDia: '4'},
-    {fecha: '2024-06-03', horaEntrada: '08:00', horaSalida: '12:00', horasPorDia: '4'},
-    {fecha: '2024-06-04', horaEntrada: '08:00', horaSalida: '12:00', horasPorDia: '4'},
-    {fecha: '2024-06-05', horaEntrada: '08:00', horaSalida: '12:00', horasPorDia: '4'},
-  ],
-  totalHorasMes: '88',
-  totalHorasAcumuladas: '120',
+  reporteNo: '',
+  nombrePrestador: '',
+  unidadAcademica: '',
+  carrera: '',
+  boleta: '',
+  noReporteMensual: '',
+  periodoDel: '',
+  periodoAl: '',
+  reporteActual: 0,
+  asistencia: [],
+  totalHorasMes: '',
+  totalHorasAcumuladas: '',
 };
