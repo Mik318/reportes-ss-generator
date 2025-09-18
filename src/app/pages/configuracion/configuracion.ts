@@ -1012,37 +1012,25 @@ export class Configuracion {
     form.getTextField('Carrera').setText(report.student.career);
     form.getTextField('Boleta').setText(this.config().boleta);
 
-    // Campos del responsable directo - agregar texto por coordenadas si no existen
-    if (this.campoExiste(form, 'Nombre Responsable')) {
-      form.getTextField('Nombre Responsable').setText(this.config().nombreResponsableDirecto);
-    } else {
-      const pages = pdfDoc.getPages();
-      const firstPage = pages[0];
+    const pages = pdfDoc.getPages();
+    const firstPage = pages[0];
 
-      if (this.config().nombreResponsableDirecto) {
-        firstPage.drawText(`Nombre del Responsable Directo: ${this.config().nombreResponsableDirecto}`, {
-          x: 50,
-          y: 80,
-          size: 10,
-          color: rgb(0, 0, 0)
-        });
-      }
+    if (this.config().nombreResponsableDirecto) {
+      firstPage.drawText(`${this.config().nombreResponsableDirecto}`, {
+        x: usarTestPdf ? 28 : 28,
+        y: usarTestPdf ? 40 : 60,
+        size: 12,
+        color: rgb(0, 0, 0)
+      });
     }
 
-    if (this.campoExiste(form, 'Cargo Responsable')) {
-      form.getTextField('Cargo Responsable').setText(this.config().cargoResponsableDirecto);
-    } else {
-      const pages = pdfDoc.getPages();
-      const firstPage = pages[0];
-
-      if (this.config().cargoResponsableDirecto) {
-        firstPage.drawText(`Cargo: ${this.config().cargoResponsableDirecto}`, {
-          x: 50,
-          y: 65,
-          size: 10,
-          color: rgb(0, 0, 0)
-        });
-      }
+    if (this.config().cargoResponsableDirecto) {
+      firstPage.drawText(`${this.config().cargoResponsableDirecto}`, {
+        x: usarTestPdf ? 28 : 28,
+        y: usarTestPdf ? 25 : 45,
+        size: 12,
+        color: rgb(0, 0, 0)
+      });
     }
 
     const maxCampos = this.obtenerMaximoCamposDisponibles(form);
