@@ -1,6 +1,6 @@
 import {Component, computed, LOCALE_ID, model, OnInit, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
-import {PDFDocument} from 'pdf-lib';
+import {PDFDocument, rgb} from 'pdf-lib';
 import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
 import moment from 'moment';
 import 'moment/locale/es';
@@ -20,9 +20,6 @@ export interface ReportConfig {
   vacationDates: string[];
   reportType: string;
   department: string;
-  includeStatistics: boolean;
-
-  // Nuevos campos
   reporteNo: string;
   nombrePrestador: string;
   unidadAcademica: string;
@@ -31,6 +28,8 @@ export interface ReportConfig {
   noReporteMensual: string;
   periodoDel: string;
   periodoAl: string;
+  nombreResponsableDirecto: string;
+  cargoResponsableDirecto: string;
   asistencia: AsistenciaDia[];
   totalHorasMes: string;
   totalHorasAcumuladas: string;
@@ -80,7 +79,7 @@ interface ReporteGenerado {
   templateUrl: './configuracion.html',
   styleUrl: './configuracion.scss',
 })
-export class Configuracion{
+export class Configuracion {
   currentStep = signal(1);
   config = signal<ReportConfig>(config);
 
@@ -97,10 +96,10 @@ export class Configuracion{
 
   horariosServicio: hosrariosServicio[] = [
     {day: 'monday', entrada: '07:00', salida: '11:00'},
-    {day: 'tuesday',entrada: '12:00', salida: '16:00'},
-    {day: 'wednesday',entrada: '10:00', salida: '14:00'},
-    {day: 'thursday',entrada: '07:00', salida: '11:00'},
-    {day: 'friday',entrada: '16:00', salida: '20:00'},
+    {day: 'tuesday', entrada: '12:00', salida: '16:00'},
+    {day: 'wednesday', entrada: '10:00', salida: '14:00'},
+    {day: 'thursday', entrada: '07:00', salida: '11:00'},
+    {day: 'friday', entrada: '16:00', salida: '20:00'},
   ];
 
   days: daysOfWeek[] = [
@@ -295,6 +294,41 @@ export class Configuracion{
     form.getTextField('Carrera').setText(this.config().carrera);
     form.getTextField('Boleta').setText(this.config().boleta);
 
+    // Campos del responsable directo - agregar texto por coordenadas si no existen los campos
+    // if (this.campoExiste(form, 'Nombre Responsable')) {
+    //   form.getTextField('Nombre Responsable').setText(this.config().nombreResponsableDirecto);
+    // } else {
+    // Agregar texto directamente por coordenadas (parte inferior izquierda)
+    const pages = pdfDoc.getPages();
+    const firstPage = pages[0];
+
+    if (this.config().nombreResponsableDirecto) {
+      firstPage.drawText(`${this.config().nombreResponsableDirecto}`, {
+        x: -20,
+        y: 10,
+        size: 12,
+        color: rgb(0, 0, 0)
+      });
+    }
+    // }
+
+    // if (this.campoExiste(form, 'Cargo Responsable')) {
+    //   form.getTextField('Cargo Responsable').setText(this.config().cargoResponsableDirecto);
+    // } else {
+    // Agregar texto directamente por coordenadas (debajo del nombre)
+    // const pages = pdfDoc.getPages();
+    // const firstPage = pages[0];
+
+    if (this.config().cargoResponsableDirecto) {
+      firstPage.drawText(`Cargo: ${this.config().cargoResponsableDirecto}`, {
+        x: -20,
+        y: -5,
+        size: 12,
+        color: rgb(0, 0, 0)
+      });
+    }
+    // }
+
     // Campos de la Tabla de Asistencia - Limitar a los campos disponibles
     const maxCampos = this.obtenerMaximoCamposDisponibles(form);
     const diasAMostrar = Math.min(this.config().asistencia.length, maxCampos);
@@ -463,7 +497,7 @@ export class Configuracion{
         }
       }
 
-      const zipBlob = await zip.generateAsync({ type: 'blob' });
+      const zipBlob = await zip.generateAsync({type: 'blob'});
 
       const url = URL.createObjectURL(zipBlob);
       const a = document.createElement('a');
@@ -840,6 +874,28 @@ export class Configuracion{
       form.getTextField('Carrera').setText(report.student.career);
       form.getTextField('Boleta').setText(this.config().boleta);
 
+
+        const pages = pdfDoc.getPages();
+        const firstPage = pages[0];
+
+        if (this.config().nombreResponsableDirecto) {
+          firstPage.drawText(`${this.config().nombreResponsableDirecto}`, {
+            x: usarTestPdf ? 28 : 28,
+            y: usarTestPdf ? 40 : 60,
+            size: 12,
+            color: rgb(0, 0, 0)
+          });
+        }
+
+        if (this.config().cargoResponsableDirecto) {
+          firstPage.drawText(`${this.config().cargoResponsableDirecto}`, {
+            x: usarTestPdf ? 28 : 28,
+            y: usarTestPdf ? 25 : 45,
+            size: 12,
+            color: rgb(0, 0, 0)
+          });
+        }
+
       // Campos de la Tabla de Asistencia
       const maxCampos = this.obtenerMaximoCamposDisponibles(form);
       const diasAMostrar = Math.min(report.asistencia.length, maxCampos);
@@ -884,14 +940,14 @@ export class Configuracion{
         .setText(horasAcumuladas.toString());
 
       const pdfBytes = await pdfDoc.save();
-      const blob = new Blob([new Uint8Array(pdfBytes)], { type: 'application/pdf' });
+      const blob = new Blob([new Uint8Array(pdfBytes)], {type: 'application/pdf'});
       const urlBlob = URL.createObjectURL(blob);
 
       // Actualizar el reporte con la nueva URL
       const reportes = this.reports();
       const updatedReportes = reportes.map(r =>
         r.id === report.id
-          ? { ...r, pdfUrl: this.sanitizer.bypassSecurityTrustResourceUrl(urlBlob) }
+          ? {...r, pdfUrl: this.sanitizer.bypassSecurityTrustResourceUrl(urlBlob)}
           : r
       );
       this.reports.set(updatedReportes);
@@ -956,6 +1012,39 @@ export class Configuracion{
     form.getTextField('Carrera').setText(report.student.career);
     form.getTextField('Boleta').setText(this.config().boleta);
 
+    // Campos del responsable directo - agregar texto por coordenadas si no existen
+    if (this.campoExiste(form, 'Nombre Responsable')) {
+      form.getTextField('Nombre Responsable').setText(this.config().nombreResponsableDirecto);
+    } else {
+      const pages = pdfDoc.getPages();
+      const firstPage = pages[0];
+
+      if (this.config().nombreResponsableDirecto) {
+        firstPage.drawText(`Nombre del Responsable Directo: ${this.config().nombreResponsableDirecto}`, {
+          x: 50,
+          y: 80,
+          size: 10,
+          color: rgb(0, 0, 0)
+        });
+      }
+    }
+
+    if (this.campoExiste(form, 'Cargo Responsable')) {
+      form.getTextField('Cargo Responsable').setText(this.config().cargoResponsableDirecto);
+    } else {
+      const pages = pdfDoc.getPages();
+      const firstPage = pages[0];
+
+      if (this.config().cargoResponsableDirecto) {
+        firstPage.drawText(`Cargo: ${this.config().cargoResponsableDirecto}`, {
+          x: 50,
+          y: 65,
+          size: 10,
+          color: rgb(0, 0, 0)
+        });
+      }
+    }
+
     const maxCampos = this.obtenerMaximoCamposDisponibles(form);
     const diasAMostrar = Math.min(report.asistencia.length, maxCampos);
 
@@ -1002,27 +1091,35 @@ export class Configuracion{
 
   // Métodos para actualizar los campos del config
   updateBoleta(value: string) {
-    this.config.set({ ...this.config(), boleta: value });
+    this.config.set({...this.config(), boleta: value});
   }
 
   updateNombrePrestador(value: string) {
-    this.config.set({ ...this.config(), nombrePrestador: value });
+    this.config.set({...this.config(), nombrePrestador: value});
   }
 
   updateUnidadAcademica(value: string) {
-    this.config.set({ ...this.config(), unidadAcademica: value });
+    this.config.set({...this.config(), unidadAcademica: value});
   }
 
   updateCarrera(value: string) {
-    this.config.set({ ...this.config(), carrera: value });
+    this.config.set({...this.config(), carrera: value});
   }
 
   updateStartDate(value: string) {
-    this.config.set({ ...this.config(), startDate: value });
+    this.config.set({...this.config(), startDate: value});
   }
 
   updateEndDate(value: string) {
-    this.config.set({ ...this.config(), endDate: value });
+    this.config.set({...this.config(), endDate: value});
+  }
+
+  updateNombreResponsableDirecto(value: string) {
+    this.config.set({...this.config(), nombreResponsableDirecto: value});
+  }
+
+  updateCargoResponsableDirecto(value: string) {
+    this.config.set({...this.config(), cargoResponsableDirecto: value});
   }
 }
 
@@ -1041,11 +1138,11 @@ const config: ReportConfig = {
   vacationDates: [],
   reportType: '',
   department: '',
-  includeStatistics: false,
-
   reporteNo: '',
   nombrePrestador: '',
   unidadAcademica: '',
+  cargoResponsableDirecto: '',
+  nombreResponsableDirecto: '',
   carrera: '',
   boleta: '',
   noReporteMensual: '',
