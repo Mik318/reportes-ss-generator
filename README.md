@@ -1,59 +1,88 @@
-# ReportesSsGenerator
+# 🕹️ reportes-ss-generator  
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.2.2.
+[![Angular](https://img.shields.io/badge/Angular-%5E20.2.0-red)](https://angular.dev/) 
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9.2-blue)](https://www.typescriptlang.org/) 
+[![Licencia MIT](https://img.shields.io/badge/Licencia-MIT-green)](LICENSE)
 
-## Development server
+🔗 **[⚡ Ver Demo en Vivo](https://mik318.github.io/reportes-ss-generator/)**  
 
-To start a local development server, run:
+---
 
+## 🚨 ¿Qué rayos es esto?
+
+Bienvenido, **agente del servicio social** 👩‍💻👨‍💻.  
+Este proyecto es tu **arma secreta** para sobrevivir a la burocracia:  
+
+📑 Genera **reportes mensuales** de tu servicio social sin sudar, y evitar que te los regresen a cada rato.  
+🤖 Deja que la app haga la **chamba repetitiva**: horas, días, periodos, todo calculado.  
+⚡ Al final, un **PDF de misión cumplida** listo para entregar a tu institución.  
+
+---
+
+## 🛠️ Superpoderes
+
+- 🔫 **Disparo automático de PDFs**  
+  Llena el formato de asistencia con tus datos como un pro.  
+
+- 🕵️ **Identidad secreta configurable**  
+  Tu boleta, nombre, carrera y horarios entran directo al sistema.  
+
+- 🛑 **Hackeo de días inhábiles**  
+  Carga un `.csv` con vacaciones y días feriados → la app los esquiva.  
+
+- ⏳ **Cálculo ninja de periodos**  
+  Solo pones inicio y fin → el sistema genera los cortes mensuales.  
+
+- 🎮 **Interfaz modo gamer**  
+  Angular + vista previa para que no entregues nada chueco.  
+
+---
+
+## 🔧 Tecnología secreta del cuartel
+
+- [Node.js](https://nodejs.org/) + npm → el combustible de la base  
+- [Angular](https://angular.dev/) → el arma principal de la UI  
+- [pdf-lib](https://pdf-lib.js.org/) → magia negra para PDF  
+- [moment.js](https://momentjs.com/) → control maestro del tiempo  
+
+---
+
+## 🚀 Cómo ponerlo en marcha
+
+### 1️⃣ Clona la base de operaciones (Repositorio)
 ```bash
-ng serve
+git clone https://github.com/Mik318/reportes-ss-generator.git
+cd reportes-ss-generator
+
+```
+### 2️⃣ Instala el arsenal (Dependencias)
+```bash
+npm install
+```
+### 3️⃣ Activa la misión (Inicia la aplicacion)
+```bash
+npm start
+```
+### 4️⃣ Accede al cuartel secreto (Navegador)
+```text
+http://localhost:4200/
+```
+### Estructura del proyecto
+```bash
+reportes-ss-generator/
+├── src/
+│   ├── app/
+│   │   ├── pages/configuracion/   # Lógica y vista principal para generar reportes
+│   │   ├── shared/                # Componentes y servicios reutilizables
+│   ├── assets/                    # Archivos estáticos (ej. plantillas PDF base)
+│   │   └── control-asistencia.pdf
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+#### 🤝 Únete a la Resistencia
 
-## Code scaffolding
+¿Detectaste un bug? 🐛
+¿Tienes un gadget nuevo para la misión? ⚡
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+Abre un issue en la base de datos 🗃️
 
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Lanza tu pull request y conviértete en héroe 🦸
