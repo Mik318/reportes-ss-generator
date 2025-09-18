@@ -28,7 +28,22 @@ Este proyecto es tu **arma secreta** para sobrevivir a la burocracia:
   Tu boleta, nombre, carrera y horarios entran directo al sistema.  
 
 - 🛑 **Hackeo de días inhábiles**  
-  Carga un `.csv` con vacaciones y días feriados → la app los esquiva.  
+  Carga un `.csv` con vacaciones y días feriados → la app los esquiva.
+  
+  Para cargar fechas especiales mediante archivo CSV, el formato debe ser:
+  
+  Columnas: fecha, tipo_fecha.
+  
+  fecha: en formato DD/MM/AAAA.
+  
+  tipo_fecha: puede ser valores como Día inhábil o Periodo vacacional.
+  
+
+  ```bash
+  fecha,tipo_fecha
+  12/09/2024,Día inhábil
+  15/09/2024,Periodo vacacional
+  ```
 
 - ⏳ **Cálculo ninja de periodos**  
   Solo pones inicio y fin → el sistema genera los cortes mensuales.  
