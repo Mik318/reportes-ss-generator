@@ -1,11 +1,13 @@
-import { Component, LOCALE_ID } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import {Component, computed, LOCALE_ID, model, signal} from '@angular/core';
+import {FormsModule} from '@angular/forms';
+import {PDFDocument} from 'pdf-lib';
+import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
 import moment from 'moment';
 import 'moment/locale/es';
-import { DatePipe, registerLocaleData } from '@angular/common';
+import {DatePipe, JsonPipe, NgClass, registerLocaleData} from '@angular/common';
 import localeEs from '@angular/common/locales/es';
+import {StepIndicator} from './step-indicator/step-indicator';
+import JSZip from 'jszip';
 
 // Registrar el locale español
 registerLocaleData(localeEs);
@@ -32,10 +34,6 @@ export interface ReportConfig {
   asistencia: AsistenciaDia[];
   totalHorasMes: string;
   totalHorasAcumuladas: string;
-
-  // Fechas del servicio social (carta compromiso)
-  fechaInicioServicio: string;
-  fechaFinServicio: string;
   reporteActual: number;
 }
 
@@ -44,15 +42,49 @@ export interface FechaEspecial {
   tipoFecha: string;
 }
 
+export interface daysOfWeek {
+  key: string;
+  label: string;
+}
+
+export interface ServiceSchedule {
+  [key: string]: hosrariosServicio;
+}
+
+export interface hosrariosServicio {
+  day: string;
+  entrada: string;
+  salida: string
+}
+
+interface ReporteGenerado {
+  id: string;
+  period: {
+    weekNumber: number;
+    startDate: string;
+    endDate: string;
+  };
+  student: {
+    name: string;
+    career: string;
+  };
+  specialDates: FechaEspecial[];
+  asistencia: AsistenciaDia[];
+  pdfUrl?: SafeResourceUrl;
+}
+
 @Component({
   selector: 'app-configuracion',
-  imports: [FormsModule, DatePipe],
-  providers: [{ provide: LOCALE_ID, useValue: 'es' }],
+  imports: [FormsModule, DatePipe, StepIndicator, NgClass, JsonPipe],
+  providers: [{provide: LOCALE_ID, useValue: 'es'}],
   templateUrl: './configuracion.html',
   styleUrl: './configuracion.scss',
 })
 export class Configuracion {
-  config: ReportConfig = config;
+  currentStep = signal(1);
+  config = signal<ReportConfig>(config);
+
+  newDate = model<FechaEspecial>({fecha: '', tipoFecha: ''});
 
   formFields: string[] = [];
   reportePeriodos: { numero: number; del: string; al: string }[] = [];
@@ -60,19 +92,132 @@ export class Configuracion {
   fechasEspeciales: FechaEspecial[] = [];
   csvFile: File | null = null;
   syncHorarios: boolean = false;
+  stepTitles = ['Información', 'Horarios', 'Fechas', 'Previsualizar'];
+  totalSteps = 4;
 
-  diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
-  horariosServicio = [
-    { entrada: '07:00', salida: '11:00' },
-    { entrada: '12:00', salida: '16:00' },
-    { entrada: '10:00', salida: '14:00' },
-    { entrada: '07:00', salida: '11:00' },
-    { entrada: '16:00', salida: '20:00' },
+  horariosServicio: hosrariosServicio[] = [
+    {day: 'monday', entrada: '07:00', salida: '11:00'},
+    {day: 'tuesday',entrada: '12:00', salida: '16:00'},
+    {day: 'wednesday',entrada: '10:00', salida: '14:00'},
+    {day: 'thursday',entrada: '07:00', salida: '11:00'},
+    {day: 'friday',entrada: '16:00', salida: '20:00'},
+  ];
+
+  days: daysOfWeek[] = [
+    {key: 'monday', label: 'Lunes'},
+    {key: 'tuesday', label: 'Martes'},
+    {key: 'wednesday', label: 'Miércoles'},
+    {key: 'thursday', label: 'Jueves'},
+    {key: 'friday', label: 'Viernes'},
   ];
 
   pdfUrl: SafeResourceUrl | null = null;
 
-  constructor(private sanitizer: DomSanitizer) {}
+  // Señales para reportes y selección
+  reports = signal<ReporteGenerado[]>([]);
+  selectedReports = signal<Set<string>>(new Set());
+  isGenerating = signal(false);
+
+  constructor(private sanitizer: DomSanitizer) {
+  }
+
+  canProceed = computed(() => {
+    switch (this.currentStep()) {
+      case 1:
+        const s = this.config();
+        // Acceso correcto a las propiedades de la señal
+        return !!(s.boleta && s.nombrePrestador && s.unidadAcademica && s.carrera);
+      case 2:
+        // Verifica que todos los días tengan entrada y salida
+        return this.horariosServicio.some(day => day.entrada && day.salida);
+      case 3:
+        return true; // opcional
+      case 4:
+        // Verifica fechas de inicio y fin del servicio social
+        return !!(this.config().startDate && this.config().endDate);
+      default:
+        return false;
+    }
+  });
+
+  nextStep() {
+    if (this.currentStep() < this.totalSteps) {
+      // Si el siguiente paso es el 4, recalcula los periodos de reporte
+      if (this.currentStep() + 1 === 4) {
+        this.calcularPeriodosReporte();
+      }
+      this.currentStep.set(this.currentStep() + 1);
+    }
+  }
+
+  prevStep() {
+    if (this.currentStep() > 1) {
+      this.currentStep.set(this.currentStep() - 1);
+    }
+  }
+
+
+  helpText = computed(() => {
+    switch (this.currentStep()) {
+      case 1:
+        return 'Complete la información básica del prestador de servicio social.';
+      case 2:
+        return 'Configure los horarios de entrada y salida para cada día de la semana.';
+      case 3:
+        return 'Agregue fechas especiales como días festivos o vacaciones (opcional).';
+      case 4:
+        return 'Revise la configuración y genere los reportes PDF. Máximo 7 reportes por generación.';
+      default:
+        return '';
+    }
+  });
+
+  addSpecialDate() {
+    if (this.newDate().fecha && this.newDate().tipoFecha) {
+      const exists = this.config().asistencia.some(dia =>
+        dia.fecha === this.newDate().fecha);
+      if (exists) {
+        alert('La fecha ya existe en la lista de asistencia.');
+        return;
+      }
+      const specialDateExists = this.fechasEspeciales.some(dia =>
+        dia.fecha === this.newDate().fecha);
+      if (specialDateExists) {
+        alert('La fecha ya existe en la lista de fechas especiales.');
+        return;
+      }
+      this.fechasEspeciales.push({...this.newDate()});
+      this.newDate.set({fecha: '', tipoFecha: ''});
+    }
+  }
+
+  removeSpecialDate(index: number) {
+    const updated = this.fechasEspeciales.filter((_, i) => i !== index);
+    this.fechasEspeciales = updated;
+  }
+
+  handleTimeChange(day: string, field: 'entrada' | 'salida', value: string) {
+    // Encuentra el índice del día en diasSemana
+    const idx = this.days.findIndex(d => d.key === day);
+    if (idx !== -1) {
+      if (field === 'entrada') {
+        this.horariosServicio[idx].entrada = value;
+      } else {
+        this.horariosServicio[idx].salida = value;
+      }
+    }
+  }
+
+  applyToAllDays(type: 'entrada' | 'salida') {
+    // Usa el primer horario como referencia
+    const referenceTime = this.horariosServicio[0][type];
+    if (!referenceTime) return;
+
+    this.horariosServicio.forEach(horario => {
+      horario[type] = referenceTime;
+    });
+  }
+
 
   formatearFechaEspanol(fecha: string): string {
     // Configurar moment a español y formatear
@@ -81,8 +226,8 @@ export class Configuracion {
   }
 
   contarDiasEspeciales(): number {
-    if (!this.config.asistencia) return 0;
-    return this.config.asistencia.filter((dia) => dia.horasPorDia === '0').length;
+    if (!this.config().asistencia) return 0;
+    return this.config().asistencia.filter((dia) => dia.horasPorDia === '0').length;
   }
 
   calcularHorasPorDia(horaEntrada: string, horaSalida: string): string {
@@ -100,14 +245,13 @@ export class Configuracion {
   calcularHorasAcumuladas(): string {
     // Suma las horas de todos los reportes generados hasta el actual
     let acumulado = 0;
-    for (let i = 1; i <= this.config.reporteActual; i++) {
+    for (let i = 1; i <= this.config().reporteActual; i++) {
       const periodo = this.reportePeriodos.find((r) => r.numero === i);
       if (periodo) {
         const fechasLaborables = this.generarFechasLaborables(periodo.del, periodo.al);
         fechasLaborables.forEach((fecha) => {
           const fechaEspecial = this.esFechaEspecial(fecha);
           if (!fechaEspecial) {
-            // Día normal, calcula el horario según el día de la semana
             const diaSemana = moment(fecha).isoWeekday();
             const idx = Math.max(0, Math.min(4, diaSemana - 1));
             const horario = this.horariosServicio[idx];
@@ -122,7 +266,7 @@ export class Configuracion {
   async generateReport() {
     // Determina el PDF según el número de fechas a mostrar
     const maxCamposDefault = 24; // Ajusta según los campos que soporte el PDF normal
-    const usarTestPdf = this.config.asistencia.length > maxCamposDefault;
+    const usarTestPdf = this.config().asistencia.length > maxCamposDefault;
     const url = usarTestPdf
       ? 'assets/control-asistencia-test.pdf'
       : 'assets/control-asistencia.pdf';
@@ -134,24 +278,24 @@ export class Configuracion {
     // Información del Prestador y el Reporte
     form
       .getTextField('Correspondiente al reporte mensual de actividades No')
-      .setText(this.config.noReporteMensual);
-    form.getTextField('Periodo del').setText(this.formatearFechaEspanol(this.config.periodoDel));
-    form.getTextField('al').setText(this.formatearFechaEspanol(this.config.periodoAl));
-    form.getTextField('Nombre del Prestador').setText(this.config.nombrePrestador);
-    form.getTextField('Unidad Académica').setText(this.config.unidadAcademica);
-    form.getTextField('Carrera').setText(this.config.carrera);
-    form.getTextField('Boleta').setText(this.config.boleta);
+      .setText(this.config().noReporteMensual);
+    form.getTextField('Periodo del').setText(this.formatearFechaEspanol(this.config().periodoDel));
+    form.getTextField('al').setText(this.formatearFechaEspanol(this.config().periodoAl));
+    form.getTextField('Nombre del Prestador').setText(this.config().nombrePrestador);
+    form.getTextField('Unidad Académica').setText(this.config().unidadAcademica);
+    form.getTextField('Carrera').setText(this.config().carrera);
+    form.getTextField('Boleta').setText(this.config().boleta);
 
     // Campos de la Tabla de Asistencia - Limitar a los campos disponibles
     const maxCampos = this.obtenerMaximoCamposDisponibles(form);
-    const diasAMostrar = Math.min(this.config.asistencia.length, maxCampos);
+    const diasAMostrar = Math.min(this.config().asistencia.length, maxCampos);
 
     console.log(
-      `PDF soporta máximo ${maxCampos} campos. Días a mostrar: ${diasAMostrar} de ${this.config.asistencia.length}`,
+      `PDF soporta máximo ${maxCampos} campos. Días a mostrar: ${diasAMostrar} de ${this.config().asistencia.length}`,
     );
 
     for (let i = 0; i < diasAMostrar; i++) {
-      const dia = this.config.asistencia[i];
+      const dia = this.config().asistencia[i];
       try {
         const campoFecha = `Fecha${i + 1}`;
         const campoEntrada = `Hora de Entrada${i + 1}`;
@@ -178,8 +322,8 @@ export class Configuracion {
     }
 
     // Mostrar advertencia si hay más días que campos disponibles
-    if (this.config.asistencia.length > maxCampos) {
-      const diasFaltantes = this.config.asistencia.length - maxCampos;
+    if (this.config().asistencia.length > maxCampos) {
+      const diasFaltantes = this.config().asistencia.length - maxCampos;
       console.warn(
         `El PDF solo soporta ${maxCampos} días, faltan ${diasFaltantes} días por mostrar.`,
       );
@@ -191,14 +335,18 @@ export class Configuracion {
     // Totales
     form
       .getTextField('Horas por díaTOTAL DE HORAS PRESTADAS POR MES')
-      .setText(this.config.totalHorasMes);
-    this.config.totalHorasAcumuladas = this.calcularHorasAcumuladas();
+      .setText(this.config().totalHorasMes);
+    // Actualiza el acumulado usando set
+    this.config.set({
+      ...this.config(),
+      totalHorasAcumuladas: this.calcularHorasAcumuladas(),
+    });
     form
       .getTextField('Horas por díaTOTAL DE HORAS PRESTADAS ACUMULADAS')
-      .setText(this.config.totalHorasAcumuladas);
+      .setText(this.config().totalHorasAcumuladas);
 
     const pdfBytes = await pdfDoc.save();
-    const blob = new Blob([new Uint8Array(pdfBytes)], { type: 'application/pdf' });
+    const blob = new Blob([new Uint8Array(pdfBytes)], {type: 'application/pdf'});
     const urlBlob = URL.createObjectURL(blob);
 
     // Propiedad pdfUrl para que el iframe lo use
@@ -249,13 +397,156 @@ export class Configuracion {
     }
   }
 
-  calcularPeriodosReporte() {
-    if (!this.config.fechaInicioServicio || !this.config.fechaFinServicio) {
+  // Métodos para selección y vista previa
+  toggleReportSelection(id: string) {
+    const set = new Set(this.selectedReports());
+    if (set.has(id)) {
+      set.delete(id);
+    } else {
+      set.add(id);
+    }
+    this.selectedReports.set(set);
+  }
+
+  selectAllReports() {
+    const allIds = this.reports().map(r => r.id);
+    this.selectedReports.set(new Set(allIds));
+  }
+
+  deselectAllReports() {
+    this.selectedReports.set(new Set());
+  }
+
+  previewReport(report: ReporteGenerado) {
+    // Actualiza el periodo y asistencia en config y llama a generateReport()
+    this.config.set({
+      ...this.config(),
+      periodoDel: report.period.startDate,
+      periodoAl: report.period.endDate,
+      asistencia: report.asistencia,
+      noReporteMensual: report.period.weekNumber.toString(),
+      reporteActual: report.period.weekNumber,
+    });
+    // this.generateReport();
+  }
+
+  async downloadSelectedReports() {
+    if (this.selectedReports().size === 0) {
+      alert('No hay reportes seleccionados para descargar.');
       return;
     }
 
-    const fechaInicio = moment(this.config.fechaInicioServicio);
-    const fechaFin = moment(this.config.fechaFinServicio);
+    this.isGenerating.set(true);
+
+    try {
+      const zip = new JSZip();
+      const reportesSeleccionados = this.reports().filter(report =>
+        this.selectedReports().has(report.id)
+      );
+
+      for (const report of reportesSeleccionados) {
+        try {
+          const pdfBytes = await this.generateReportPdfBytes(report);
+          const fileName = `Reporte_${report.period.weekNumber}_${this.config().nombrePrestador.replace(/\s+/g, '_')}.pdf`;
+          zip.file(fileName, pdfBytes);
+        } catch (error) {
+          console.error(`Error generando PDF para reporte ${report.period.weekNumber}:`, error);
+        }
+      }
+
+      const zipBlob = await zip.generateAsync({ type: 'blob' });
+
+      const url = URL.createObjectURL(zipBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Reportes_ServicioSocial_${this.config().nombrePrestador.replace(/\s+/g, '_')}.zip`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      alert(`Se descargaron ${reportesSeleccionados.length} reportes en formato ZIP.`);
+    } catch (error) {
+      console.error('Error generando ZIP:', error);
+      alert('Error al generar el archivo ZIP. Por favor intenta de nuevo.');
+    } finally {
+      this.isGenerating.set(false);
+    }
+  }
+
+  // Genera los reportes según los periodos calculados
+  generateAllReports() {
+    const reportes: ReporteGenerado[] = [];
+    const periodos = this.reportePeriodos.slice(0, 7); // máximo 7 reportes
+
+    periodos.forEach((periodo, idx) => {
+      const fechas = this.generarFechasLaborables(periodo.del, periodo.al);
+
+      // Filtra fechas especiales que caen en el periodo del reporte
+      const specialDatesPeriodo = this.fechasEspeciales.filter(fe =>
+        moment(fe.fecha).isSameOrAfter(periodo.del) && moment(fe.fecha).isSameOrBefore(periodo.al)
+      );
+
+      const asistencia = fechas.map(fecha => {
+        const fechaEspecial = specialDatesPeriodo.find(fe => fe.fecha === fecha);
+        if (fechaEspecial) {
+          return {
+            fecha: fecha,
+            horaEntrada: fechaEspecial.tipoFecha,
+            horaSalida: fechaEspecial.tipoFecha,
+            horasPorDia: '0',
+          };
+        } else {
+          const diaSemana = moment(fecha).isoWeekday();
+          const i = Math.max(0, Math.min(4, diaSemana - 1));
+          const horario = this.horariosServicio[i];
+          const horasPorDia = this.calcularHorasPorDia(horario.entrada, horario.salida);
+          return {
+            fecha: fecha,
+            horaEntrada: horario.entrada,
+            horaSalida: horario.salida,
+            horasPorDia: horasPorDia,
+          };
+        }
+      });
+
+      // Procesa los días especiales para este reporte
+      const specialDatesEnAsistencia = asistencia
+        .filter(a => a.horasPorDia === '0')
+        .map(a => ({
+          fecha: a.fecha,
+          tipoFecha: a.horaEntrada,
+        }));
+
+      reportes.push({
+        id: `reporte-${idx + 1}`,
+        period: {
+          weekNumber: idx + 1,
+          startDate: this.formatearFechaEspanol(periodo.del),
+          endDate: this.formatearFechaEspanol(periodo.al),
+        },
+        student: {
+          name: this.config().nombrePrestador,
+          career: this.config().carrera,
+        },
+        specialDates: specialDatesEnAsistencia,
+        asistencia,
+      });
+    });
+
+    this.reports.set(reportes);
+    this.selectedReports.set(new Set());
+  }
+
+  // Llama a generateAllReports cuando se calculan los periodos
+  calcularPeriodosReporte() {
+    // Corrige acceso a las señales
+    if (!this.config().startDate || !this.config().endDate) {
+      return;
+    }
+
+    const fechaInicio = moment(this.config().startDate);
+    const fechaFin = moment(this.config().endDate);
     const diaInicio = fechaInicio.date();
 
     this.reportePeriodos = [];
@@ -348,6 +639,8 @@ export class Configuracion {
         }
       }
     }
+
+    this.generateAllReports();
   }
 
   generarFechasLaborables(fechaInicio: string, fechaFin: string): string[] {
@@ -427,6 +720,9 @@ export class Configuracion {
         }
       }
     }
+
+    // Actualiza los reportes para reflejar las fechas especiales recién cargadas
+    this.generateAllReports();
   }
 
   esFechaEspecial(fecha: string): FechaEspecial | null {
@@ -434,20 +730,23 @@ export class Configuracion {
   }
 
   seleccionarPeriodo(periodo: { numero: number; del: string; al: string }) {
-    this.config.reporteActual = periodo.numero;
-    this.config.noReporteMensual = periodo.numero.toString();
-    this.config.periodoDel = periodo.del;
-    this.config.periodoAl = periodo.al;
+    // Actualiza config usando set
+    this.config.set({
+      ...this.config(),
+      reporteActual: periodo.numero,
+      noReporteMensual: periodo.numero.toString(),
+      periodoDel: periodo.del,
+      periodoAl: periodo.al,
+    });
 
     // Generar fechas laborables para el periodo seleccionado
     this.fechasLaborables = this.generarFechasLaborables(periodo.del, periodo.al);
 
     // Actualizar array de asistencia con las fechas laborables y horarios según el día de la semana
-    this.config.asistencia = this.fechasLaborables.map((fecha) => {
+    const asistencia = this.fechasLaborables.map((fecha) => {
       const fechaEspecial = this.esFechaEspecial(fecha);
 
       if (fechaEspecial) {
-        // Si es fecha especial, usar el tipo como hora entrada y salida
         return {
           fecha: fecha,
           horaEntrada: fechaEspecial.tipoFecha,
@@ -455,9 +754,7 @@ export class Configuracion {
           horasPorDia: '0',
         };
       } else {
-        // Día normal de trabajo: asignar horario según el día de la semana
-        const diaSemana = moment(fecha).isoWeekday(); // 1=Lunes ... 5=Viernes
-        // Ajustar índice para array (Lunes=0, ..., Viernes=4)
+        const diaSemana = moment(fecha).isoWeekday();
         const idx = Math.max(0, Math.min(4, diaSemana - 1));
         const horario = this.horariosServicio[idx];
         const horasPorDia = this.calcularHorasPorDia(horario.entrada, horario.salida);
@@ -472,11 +769,16 @@ export class Configuracion {
     });
 
     // Calcular total de horas del mes (solo días normales)
-    const horasNormales = this.config.asistencia
+    const horasNormales = asistencia
       .filter((dia) => dia.horasPorDia !== '0')
       .reduce((total, dia) => total + parseFloat(dia.horasPorDia), 0);
 
-    this.config.totalHorasMes = horasNormales.toString();
+    // Actualiza config con asistencia y totalHorasMes
+    this.config.set({
+      ...this.config(),
+      asistencia,
+      totalHorasMes: horasNormales.toString(),
+    });
   }
 
   // Add this new method
@@ -499,10 +801,194 @@ export class Configuracion {
       return this.pdfUrl;
     }
     const pdfPath =
-      this.config.asistencia.length > 24
+      this.config().asistencia.length > 24
         ? 'assets/control-asistencia-test.pdf'
         : 'assets/control-asistencia.pdf';
     return this.sanitizer.bypassSecurityTrustResourceUrl(pdfPath);
+  }
+
+  // Genera un PDF individual para un reporte específico
+  async generateSingleReportPdf(report: ReporteGenerado) {
+    try {
+      // Determina el PDF según el número de fechas a mostrar
+      const maxCamposDefault = 24;
+      const usarTestPdf = report.asistencia.length > maxCamposDefault;
+      const url = usarTestPdf
+        ? 'assets/control-asistencia-test.pdf'
+        : 'assets/control-asistencia.pdf';
+
+      const existingPdfBytes = await fetch(url).then((res) => res.arrayBuffer());
+      const pdfDoc = await PDFDocument.load(existingPdfBytes);
+      const form = pdfDoc.getForm();
+
+      // Información del Prestador y el Reporte
+      form.getTextField('Correspondiente al reporte mensual de actividades No')
+        .setText(report.period.weekNumber.toString());
+      form.getTextField('Periodo del').setText(report.period.startDate);
+      form.getTextField('al').setText(report.period.endDate);
+      form.getTextField('Nombre del Prestador').setText(report.student.name);
+      form.getTextField('Unidad Académica').setText(this.config().unidadAcademica);
+      form.getTextField('Carrera').setText(report.student.career);
+      form.getTextField('Boleta').setText(this.config().boleta);
+
+      // Campos de la Tabla de Asistencia
+      const maxCampos = this.obtenerMaximoCamposDisponibles(form);
+      const diasAMostrar = Math.min(report.asistencia.length, maxCampos);
+
+      for (let i = 0; i < diasAMostrar; i++) {
+        const dia = report.asistencia[i];
+        try {
+          const campoFecha = `Fecha${i + 1}`;
+          const campoEntrada = `Hora de Entrada${i + 1}`;
+          const campoSalida = `Hora de Salida${i + 1}`;
+          const campoHoras = `Horas por día${i + 1}`;
+
+          if (this.campoExiste(form, campoFecha)) {
+            form.getTextField(campoFecha).setText(this.formatearFechaEspanol(dia.fecha));
+          }
+          if (this.campoExiste(form, campoEntrada)) {
+            form.getTextField(campoEntrada).setText(dia.horaEntrada);
+          }
+          if (this.campoExiste(form, campoSalida)) {
+            form.getTextField(campoSalida).setText(dia.horaSalida);
+          }
+          if (this.campoExiste(form, campoHoras)) {
+            form.getTextField(campoHoras).setText(dia.horasPorDia);
+          }
+        } catch (error) {
+          console.warn(`Error al escribir día ${i + 1}:`, error);
+          break;
+        }
+      }
+
+      // Calcular totales para este reporte
+      const horasMes = report.asistencia
+        .filter(dia => dia.horasPorDia !== '0')
+        .reduce((total, dia) => total + parseFloat(dia.horasPorDia), 0);
+
+      form.getTextField('Horas por díaTOTAL DE HORAS PRESTADAS POR MES')
+        .setText(horasMes.toString());
+
+      // Calcular horas acumuladas hasta este reporte
+      const horasAcumuladas = this.calcularHorasAcumuladasHasta(report.period.weekNumber);
+      form.getTextField('Horas por díaTOTAL DE HORAS PRESTADAS ACUMULADAS')
+        .setText(horasAcumuladas.toString());
+
+      const pdfBytes = await pdfDoc.save();
+      const blob = new Blob([new Uint8Array(pdfBytes)], { type: 'application/pdf' });
+      const urlBlob = URL.createObjectURL(blob);
+
+      // Actualizar el reporte con la nueva URL
+      const reportes = this.reports();
+      const updatedReportes = reportes.map(r =>
+        r.id === report.id
+          ? { ...r, pdfUrl: this.sanitizer.bypassSecurityTrustResourceUrl(urlBlob) }
+          : r
+      );
+      this.reports.set(updatedReportes);
+
+    } catch (error) {
+      console.error('Error generando PDF del reporte:', error);
+    }
+  }
+
+  // Genera PDFs para todos los reportes
+  async generateAllReportsPdf() {
+    this.isGenerating.set(true);
+
+    try {
+      for (const report of this.reports()) {
+        await this.generateSingleReportPdf(report);
+        // Pequeña pausa para evitar bloquear la UI
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+    } catch (error) {
+      console.error('Error generando PDFs:', error);
+    } finally {
+      this.isGenerating.set(false);
+    }
+  }
+
+  // Calcula horas acumuladas hasta un reporte específico
+  calcularHorasAcumuladasHasta(numeroReporte: number): number {
+    let acumulado = 0;
+
+    for (let i = 1; i <= numeroReporte; i++) {
+      const reporte = this.reports().find(r => r.period.weekNumber === i);
+      if (reporte) {
+        const horasReporte = reporte.asistencia
+          .filter(dia => dia.horasPorDia !== '0')
+          .reduce((total, dia) => total + parseFloat(dia.horasPorDia), 0);
+        acumulado += horasReporte;
+      }
+    }
+
+    return acumulado;
+  }
+
+  // Método auxiliar para generar PDF como bytes (sin crear URL)
+  private async generateReportPdfBytes(report: ReporteGenerado): Promise<Uint8Array> {
+    const maxCamposDefault = 24;
+    const usarTestPdf = report.asistencia.length > maxCamposDefault;
+    const url = usarTestPdf
+      ? 'assets/control-asistencia-test.pdf'
+      : 'assets/control-asistencia.pdf';
+
+    const existingPdfBytes = await fetch(url).then((res) => res.arrayBuffer());
+    const pdfDoc = await PDFDocument.load(existingPdfBytes);
+    const form = pdfDoc.getForm();
+
+    form.getTextField('Correspondiente al reporte mensual de actividades No')
+      .setText(report.period.weekNumber.toString());
+    form.getTextField('Periodo del').setText(report.period.startDate);
+    form.getTextField('al').setText(report.period.endDate);
+    form.getTextField('Nombre del Prestador').setText(report.student.name);
+    form.getTextField('Unidad Académica').setText(this.config().unidadAcademica);
+    form.getTextField('Carrera').setText(report.student.career);
+    form.getTextField('Boleta').setText(this.config().boleta);
+
+    const maxCampos = this.obtenerMaximoCamposDisponibles(form);
+    const diasAMostrar = Math.min(report.asistencia.length, maxCampos);
+
+    for (let i = 0; i < diasAMostrar; i++) {
+      const dia = report.asistencia[i];
+      try {
+        const campoFecha = `Fecha${i + 1}`;
+        const campoEntrada = `Hora de Entrada${i + 1}`;
+        const campoSalida = `Hora de Salida${i + 1}`;
+        const campoHoras = `Horas por día${i + 1}`;
+
+        if (this.campoExiste(form, campoFecha)) {
+          form.getTextField(campoFecha).setText(this.formatearFechaEspanol(dia.fecha));
+        }
+        if (this.campoExiste(form, campoEntrada)) {
+          form.getTextField(campoEntrada).setText(dia.horaEntrada);
+        }
+        if (this.campoExiste(form, campoSalida)) {
+          form.getTextField(campoSalida).setText(dia.horaSalida);
+        }
+        if (this.campoExiste(form, campoHoras)) {
+          form.getTextField(campoHoras).setText(dia.horasPorDia);
+        }
+      } catch (error) {
+        console.warn(`Error al escribir día ${i + 1}:`, error);
+        break;
+      }
+    }
+
+    const horasMes = report.asistencia
+      .filter(dia => dia.horasPorDia !== '0')
+      .reduce((total, dia) => total + parseFloat(dia.horasPorDia), 0);
+
+    form.getTextField('Horas por díaTOTAL DE HORAS PRESTADAS POR MES')
+      .setText(horasMes.toString());
+
+    const horasAcumuladas = this.calcularHorasAcumuladasHasta(report.period.weekNumber);
+    form.getTextField('Horas por díaTOTAL DE HORAS PRESTADAS ACUMULADAS')
+      .setText(horasAcumuladas.toString());
+
+    const pdfBytes = await pdfDoc.save();
+    return new Uint8Array(pdfBytes);
   }
 }
 
@@ -515,8 +1001,8 @@ export interface AsistenciaDia {
 
 // Datos dummy
 const config: ReportConfig = {
-  startDate: '2024-06-01',
-  endDate: '2024-06-30',
+  startDate: '2024-11-04',
+  endDate: '2025-06-04',
   unavailableDates: ['2024-06-10'],
   vacationDates: ['2024-06-15'],
   reportType: 'mensual',
@@ -531,15 +1017,13 @@ const config: ReportConfig = {
   noReporteMensual: '1',
   periodoDel: '2024-06-01',
   periodoAl: '2024-06-30',
-  fechaInicioServicio: '2024-11-04',
-  fechaFinServicio: '2024-11-30',
   reporteActual: 1,
   asistencia: [
-    { fecha: '2024-06-01', horaEntrada: '08:00', horaSalida: '12:00', horasPorDia: '4' },
-    { fecha: '2024-06-02', horaEntrada: '08:00', horaSalida: '12:00', horasPorDia: '4' },
-    { fecha: '2024-06-03', horaEntrada: '08:00', horaSalida: '12:00', horasPorDia: '4' },
-    { fecha: '2024-06-04', horaEntrada: '08:00', horaSalida: '12:00', horasPorDia: '4' },
-    { fecha: '2024-06-05', horaEntrada: '08:00', horaSalida: '12:00', horasPorDia: '4' },
+    {fecha: '2024-06-01', horaEntrada: '08:00', horaSalida: '12:00', horasPorDia: '4'},
+    {fecha: '2024-06-02', horaEntrada: '08:00', horaSalida: '12:00', horasPorDia: '4'},
+    {fecha: '2024-06-03', horaEntrada: '08:00', horaSalida: '12:00', horasPorDia: '4'},
+    {fecha: '2024-06-04', horaEntrada: '08:00', horaSalida: '12:00', horasPorDia: '4'},
+    {fecha: '2024-06-05', horaEntrada: '08:00', horaSalida: '12:00', horasPorDia: '4'},
   ],
   totalHorasMes: '88',
   totalHorasAcumuladas: '120',

@@ -1,0 +1,49 @@
+<div class="w-full bg-white rounded-lg shadow-sm p-6 mb-6">
+  <div class="flex items-center justify-between">
+    @for (step of stepTitles; track step; let index = $index) {
+      <ng-container>
+        <div class="flex flex-col items-center">
+          <!-- Circle -->
+          <div
+            class="w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all"
+            [ngClass]="{
+            'bg-green-500 border-green-500 text-white': index + 1 < currentStep,
+            'bg-blue-500 border-blue-500 text-white': index + 1 === currentStep,
+            'bg-gray-100 border-gray-300 text-gray-500': index + 1 > currentStep
+          }"
+          >
+            @if (index + 1 < currentStep) {
+              <div>
+                <span class="material-symbols-outlined text-lg">check</span>
+              </div>
+            } @else {
+              <div>{{ index + 1 }}</div>
+            }
+          </div>
+
+          <!-- Title -->
+          <div
+            class="text-sm mt-2 text-center max-w-20"
+            [ngClass]="{
+            'text-blue-600 font-semibold': index + 1 === currentStep,
+            'text-gray-600': index + 1 !== currentStep
+          }"
+          >
+            {{ stepTitles[index] }}
+          </div>
+        </div>
+
+        <!-- Divider -->
+        @if (index < totalSteps - 1) {
+          <div
+            class="flex-1 h-0.5 mx-4 transition-all"
+            [ngClass]="{
+          'bg-green-500': index + 1 < currentStep,
+          'bg-gray-300': index + 1 >= currentStep
+        }"
+          ></div>
+        }
+      </ng-container>
+    }
+  </div>
+</div>

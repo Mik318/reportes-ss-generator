@@ -35,6 +35,7 @@
     "@angular/router": "^20.2.0",
     "@angular/ssr": "^20.2.2",
     "express": "^5.1.0",
+    "jszip": "^3.10.1",
     "moment": "^2.30.1",
     "pdf-lib": "^1.17.1",
     "rxjs": "~7.8.0",
