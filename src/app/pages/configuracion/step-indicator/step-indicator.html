@@ -1,16 +1,32 @@
 <div class="w-full bg-white rounded-lg shadow-sm p-6 mb-6">
-  <div class="flex items-center justify-between">
-    @for (step of stepTitles; track step; let index = $index) {
-      <ng-container>
+  <!-- Para más de 4 pasos, usar grid layout -->
+  <div class="relative">
+    <!-- Línea de fondo continua -->
+    <div class="absolute top-5 left-1/2 -translate-x-1/2"
+         [style.width.%]="(stepTitles.length > 1 ? ((stepTitles.length - 1) / stepTitles.length) * 100 : 0)"
+         style="height: 2px; background: #d1d5db;">
+    </div>
+
+    <!-- Línea de progreso -->
+    <div class="absolute top-5 h-0.5 bg-green-500 transition-all duration-300"
+         [style.left.%]="(50 - ((stepTitles.length - 1) / stepTitles.length) * 50)"
+         [style.width.%]="(stepTitles.length > 1 ? (((currentStep - 1) / (stepTitles.length - 1)) * ((stepTitles.length - 1) / stepTitles.length) * 100) : 0)">
+    </div>
+    <!-- Grid de pasos -->
+    <div
+      class="relative grid"
+      [style.grid-template-columns]="'repeat(' + stepTitles.length + ', 1fr)'"
+    >
+      @for (step of stepTitles; track step; let index = $index) {
         <div class="flex flex-col items-center">
           <!-- Circle -->
           <div
-            class="w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all"
+            class="w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all relative z-10 bg-white"
             [ngClass]="{
-            'bg-green-500 border-green-500 text-white': index + 1 < currentStep,
-            'bg-blue-500 border-blue-500 text-white': index + 1 === currentStep,
-            'bg-gray-100 border-gray-300 text-gray-500': index + 1 > currentStep
-          }"
+                'bg-green-500 border-green-500 text-green-500': index + 1 < currentStep,
+                'bg-blue-500 border-blue-500 text-blue-600': index + 1 === currentStep,
+                'bg-gray-100 border-gray-300 text-gray-500': index + 1 > currentStep
+              }"
           >
             @if (index + 1 < currentStep) {
               <div>
@@ -23,27 +39,16 @@
 
           <!-- Title -->
           <div
-            class="text-sm mt-2 text-center max-w-20"
+            class="text-xs mt-2 text-center max-w-16"
             [ngClass]="{
-            'text-blue-600 font-semibold': index + 1 === currentStep,
-            'text-gray-600': index + 1 !== currentStep
-          }"
+                'text-blue-600 font-semibold': index + 1 === currentStep,
+                'text-gray-600': index + 1 !== currentStep
+              }"
           >
             {{ stepTitles[index] }}
           </div>
         </div>
-
-        <!-- Divider -->
-        @if (index < totalSteps - 1) {
-          <div
-            class="flex-1 h-0.5 mx-4 transition-all"
-            [ngClass]="{
-          'bg-green-500': index + 1 < currentStep,
-          'bg-gray-300': index + 1 >= currentStep
-        }"
-          ></div>
-        }
-      </ng-container>
-    }
+      }
+    </div>
   </div>
 </div>

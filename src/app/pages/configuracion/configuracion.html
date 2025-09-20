@@ -29,7 +29,7 @@
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Cédula -->
                     <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-2">
+                      <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
                         <span class="material-symbols-outlined mr-1">badge</span>
                         Boleta
                       </label>
@@ -42,7 +42,7 @@
 
                     <!-- Nombre -->
                     <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-2">
+                      <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
                         <span class="material-symbols-outlined mr-1">person</span>
                         Nombre del Prestador
                       </label>
@@ -55,7 +55,7 @@
 
                     <!-- Unidad Académica -->
                     <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-2">
+                      <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
                         <span class="material-symbols-outlined mr-1">apartment</span>
                         Unidad Académica
                       </label>
@@ -68,7 +68,7 @@
 
                     <!-- Carrera -->
                     <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-2">
+                      <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
                         <span class="material-symbols-outlined mr-1">school</span>
                         Carrera
                       </label>
@@ -81,7 +81,7 @@
 
                     <!-- Período del -->
                     <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-2">
+                      <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
                         <span class="material-symbols-outlined mr-1">calendar_month</span>
                         Período del
                       </label>
@@ -93,7 +93,7 @@
 
                     <!-- Período al -->
                     <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-2">
+                      <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
                         <span class="material-symbols-outlined mr-1">calendar_month</span>
                         al
                       </label>
@@ -103,7 +103,7 @@
                              class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out bg-gray-50 placeholder-gray-400"/>
                     </div>
                     <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-2">
+                      <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
                         <span class="material-symbols-outlined mr-1">person_celebrate</span>
                         Nombre del responsable directo
                       </label>
@@ -114,7 +114,7 @@
                              placeholder="Pancracia Hernandez"/>
                     </div>
                     <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-2">
+                      <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
                         <span class="material-symbols-outlined mr-1">orders</span>
                         Cargo del responsable directo
                       </label>
@@ -123,6 +123,62 @@
                              (input)="updateCargoResponsableDirecto($any($event.target).value)"
                              class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out bg-gray-50 placeholder-gray-400"
                              placeholder="Director"/>
+                    </div>
+                    <div>
+                      <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                        <span class="material-symbols-outlined mr-1">alternate_email</span>
+                        Correo electrónico
+                      </label>
+                      <input type="text"
+                             [value]="config().correo"
+                             (input)="updateCorreo($any($event.target).value)"
+                             class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none
+                             focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out
+                             bg-gray-50 placeholder-gray-400"
+                             placeholder="xxxxxxx@xxxxx.xxx"/>
+                    </div>
+                    <div>
+                      <label class="text-sm font-medium text-gray-700 mb-2 flex items-center">
+                        <span class="material-symbols-outlined mr-1">deskphone</span>
+                        Teléfono particular
+                      </label>
+                      <input type="tel"
+                             [value]="config().telefono"
+                             (input)="updateTelefono($any($event.target).value)"
+                             class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none
+                             focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out
+                             bg-gray-50 placeholder-gray-400"
+                             placeholder="##########"/>
+                    </div>
+                    <div>
+                      <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                        <span class="material-symbols-outlined mr-1">calendar_month</span>
+                        Fecha para reportes mensuales
+                      </label>
+                      <input type="date"
+                             [value]="config().reportDateMonth"
+                             (input)="updateReportDateMonth($any($event.target).value)"
+                             class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out bg-gray-50 placeholder-gray-400"/>
+                    </div>
+                    <div>
+                      <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                        <span class="material-symbols-outlined mr-1">numbers</span>
+                        Semestre
+                      </label>
+                      <input type="text"
+                             [value]="config().semestre"
+                             (input)="updateReportSemestre($any($event.target).value)"
+                             class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out bg-gray-50 placeholder-gray-400"/>
+                    </div>
+                    <div>
+                      <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                        <span class="material-symbols-outlined mr-1">apartment</span>
+                        Prestatario
+                      </label>
+                      <input type="text"
+                             [value]="config().prestatario"
+                             (input)="updateReportprestatario($any($event.target).value)"
+                             class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out bg-gray-50 placeholder-gray-400"/>
                     </div>
                   </div>
                 </div>
@@ -449,7 +505,8 @@
                             <div class="bg-gray-50 rounded-lg shadow border p-4">
                               <div class="mb-4 text-center">
                                 <div class="flex items-center justify-between mb-2">
-                                  <span class="font-semibold text-blue-700">Reporte #{{ report.period.weekNumber }}</span>
+                                  <span
+                                    class="font-semibold text-blue-700">Reporte #{{ report.period.weekNumber }}</span>
                                   <button
                                     (click)="generateSingleReportPdf(report)"
                                     class="px-3 py-1 text-xs bg-blue-100 text-blue-600 rounded hover:bg-blue-200 transition-colors"
@@ -468,6 +525,218 @@
                               @if (report.pdfUrl) {
                                 <iframe
                                   [src]="report.pdfUrl"
+                                  class="w-full h-[1000px] border rounded bg-white"
+                                  title="Vista previa Reporte {{ report.period.weekNumber }}"
+                                ></iframe>
+                              } @else {
+                                <div class="w-full h-80 border rounded bg-white flex items-center justify-center">
+                                  <div class="text-center text-gray-500">
+                                    <span class="material-symbols-outlined text-4xl mb-2 block">description</span>
+                                    <p class="text-sm">Click "Generar Todos" para ver la vista previa</p>
+                                  </div>
+                                </div>
+                              }
+                            </div>
+                          }
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+              @case (5) {
+                <!-- Campos para resumen de actividades por reporte -->
+                <div class="mt-8">
+                  <h3 class="text-lg font-semibold text-gray-800 mb-4">Resumen de Actividades por Reporte</h3>
+                  <div class="space-y-6">
+                    @for (report of reports(); track report.id) {
+                      <div class="bg-gray-50 rounded-lg p-4 border">
+                        <div class="mb-2 font-medium text-blue-700">
+                          Reporte #{{ report.period.weekNumber }} ({{ report.period.startDate }}
+                          al {{ report.period.endDate }})
+                        </div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                          Resumen de actividades realizadas
+                        </label>
+                        <textarea
+                          [(ngModel)]="report.resumeActivities"
+                          (ngModelChange)="updateResumeActivities(report.id, $event)"
+                          rows="3"
+                          class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none
+                          focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out
+                          bg-white placeholder-gray-400"
+                          placeholder="Describe brevemente las actividades realizadas en este periodo deberás redactarlas en primera persona y en pasado...."
+                        ></textarea>
+                        <!--                        <button-->
+                        <!--                          (click)="autocompletarResumenIA(report)"-->
+                        <!--                          class="mt-2 px-3 py-1 text-xs bg-blue-100 text-blue-600 rounded hover:bg-blue-200 transition-colors"-->
+                        <!--                          type="button"-->
+                        <!--                        >-->
+                        <!--                          Autocompletar con IA-->
+                        <!--                        </button>-->
+                      </div>
+                    }
+                  </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                  <!-- Header -->
+                  <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center">
+                      <span class="material-symbols-outlined text-blue-500 mr-3">description</span>
+                      <h2 class="text-2xl font-bold text-gray-800">Vista Previa de Reportes</h2>
+                    </div>
+                    <div class="text-sm text-gray-600">Máximo 7 reportes por generación</div>
+                  </div>
+
+                  <!--               No reports-->
+                  @if (reports().length === 0) {
+                    <div class="text-center py-12">
+                      <span class="material-symbols-outlined text-gray-400 mx-auto mb-4 text-6xl">calendar_month</span>
+                      <p class="text-gray-600">Configure las fechas del período para generar reportes</p>
+                    </div>
+                  } @else {
+                    <!-- Reports generated -->
+                    <div>
+                      <!-- Bulk actions -->
+                      <div class="flex items-center justify-between mb-6 p-4 bg-gray-50 rounded-lg">
+                        <div class="flex items-center gap-4">
+                          <div class="text-gray-700">
+                            {{ selectedReportsMonth().size }} de {{ reports().length }} reportes seleccionados
+                          </div>
+                          <div class="flex gap-2">
+                            <button (click)="selectAllReportsMonth()"
+                                    class="px-3 py-1 text-sm bg-blue-100 text-blue-600 rounded-md hover:bg-blue-200 transition-colors">
+                              Seleccionar todos
+                            </button>
+                            <button (click)="deselectAllReportsMoth()"
+                                    class="px-3 py-1 text-sm bg-gray-100 text-gray-600 rounded-md hover:bg-gray-200 transition-colors">
+                              Deseleccionar todos
+                            </button>
+                          </div>
+                        </div>
+
+                        <button (click)="downloadSelectedReportsMonth()"
+                                [disabled]="selectedReportsMonth().size === 0 || isGenerating()"
+                                class="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center">
+                          @if (isGenerating()) {
+                            <span class="material-symbols-outlined mr-2 animate-spin">progress_activity</span>
+                            Generando ZIP...
+                          } @else {
+                            <span class="material-symbols-outlined mr-2">download</span>
+                            Descargar PDF en ZIP
+                          }
+                        </button>
+                      </div>
+
+                      <!-- Reports grid -->
+                      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        @for (report of reports(); track report) {
+                          <div (click)="toggleReportSelectionMonth(report.id)"
+                               class="border-2 rounded-lg p-4 transition-all cursor-pointer"
+                               [ngClass]="selectedReportsMonth().has(report.id) ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white hover:border-gray-300'">
+
+                            <div class="flex items-start justify-between mb-3">
+                              <div class="flex items-center">
+                                <input type="checkbox" [checked]="selectedReportsMonth().has(report.id)"
+                                       (click)="$event.stopPropagation()"
+                                       (change)="toggleReportSelectionMonth(report.id)"
+                                       class="mr-3 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"/>
+                                <div>
+                                  <h3 class="font-semibold text-gray-800">Semana {{ report.period.weekNumber }}</h3>
+                                  <p class="text-sm text-gray-600">{{ report.period.startDate }}
+                                    al {{ report.period.endDate }}</p>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div class="space-y-2 text-sm">
+                              <div class="flex justify-between">
+                                <span class="text-gray-600">Prestador:</span>
+                                <span class="font-medium">{{ report.student.name }}</span>
+                              </div>
+                              <div class="flex justify-between">
+                                <span class="text-gray-600">Carrera:</span>
+                                <span class="font-medium truncate ml-2">{{ report.student.career }}</span>
+                              </div>
+                              <div class="flex justify-between">
+                                <span class="text-gray-600">Responsable directo:</span>
+                                <span class="font-medium">{{ report.leadPersonal.name }}</span>
+                              </div>
+                              <div class="flex justify-between">
+                                <span class="text-gray-600">Cargo de responsable directo:</span>
+                                <span class="font-medium">{{ report.leadPersonal.position }}</span>
+                              </div>
+                            </div>
+                          </div>
+                        }
+                      </div>
+
+                      <!-- Summary -->
+                      <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+                        <h3 class="font-semibold text-blue-800 mb-2">Resumen de Generación</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                          <div>
+                            <span class="text-blue-600">Total de reportes:</span>
+                            <span class="font-medium ml-2">{{ reports().length }}</span>
+                          </div>
+                          <div>
+                            <span class="text-blue-600">Período completo:</span>
+                            <span class="font-medium ml-2">
+                              {{ formatearFechaEspanol(config()?.startDate ?? '') }} al
+                              {{ formatearFechaEspanol(config()?.endDate ?? '') }}</span>
+                          </div>
+                          <div>
+                            <span class="text-blue-600">Fechas especiales:</span>
+                            <span class="font-medium ml-2">{{ fechasEspeciales.length }}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="mt-10">
+                        <div class="flex items-center justify-between mb-6">
+                          <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                            <span class="material-symbols-outlined text-blue-500 mr-2">visibility</span>
+                            Vista Previa de Reportes PDF
+                          </h3>
+                          <button
+                            (click)="generateAllReportsPdf('month')"
+                            [disabled]="isGenerating()"
+                            class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-300 transition-colors flex items-center"
+                          >
+                            @if (isGenerating()) {
+                              <span class="material-symbols-outlined mr-2 animate-spin">progress_activity</span>
+                              Generando...
+                            } @else {
+                              <span class="material-symbols-outlined mr-2">refresh</span>
+                              Generar Todos
+                            }
+                          </button>
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-6">
+                          @for (report of reports(); track report.id) {
+                            <div class="bg-gray-50 rounded-lg shadow border p-4">
+                              <div class="mb-4 text-center">
+                                <div class="flex items-center justify-between mb-2">
+                                  <span
+                                    class="font-semibold text-blue-700">Reporte #{{ report.period.weekNumber }}</span>
+                                  <button
+                                    (click)="generateSingleReportMonthPdf(report)"
+                                    class="px-3 py-1 text-xs bg-blue-100 text-blue-600 rounded hover:bg-blue-200 transition-colors"
+                                  >
+                                    Actualizar
+                                  </button>
+                                </div>
+                                <div class="text-xs text-gray-500 mb-2">
+                                  {{ report.period.startDate }} al {{ report.period.endDate }}
+                                </div>
+                                <div class="text-xs text-gray-600">
+                                  {{ report.asistencia.length }} días • {{ report.specialDates.length }} especiales
+                                </div>
+                              </div>
+
+                              @if (report.pdfMonthUrl) {
+                                <iframe
+                                  [src]="report.pdfMonthUrl"
                                   class="w-full h-[1000px] border rounded bg-white"
                                   title="Vista previa Reporte {{ report.period.weekNumber }}"
                                 ></iframe>
@@ -524,218 +793,6 @@
                 </div>
               </div>
             </div>
-
-            <!-- Archivo CSV de Fechas Especiales -->
-            <!--        <div class="bg-yellow-50 p-4 rounded-lg">-->
-            <!--          <h3 class="text-lg font-medium text-gray-900 mb-4">Fechas Especiales (CSV)</h3>-->
-
-            <!--          <div class="mb-4">-->
-            <!--            <label class="block text-sm font-medium text-gray-700 mb-2">-->
-            <!--              Subir archivo CSV con fechas especiales-->
-            <!--            </label>-->
-            <!--            <input-->
-            <!--              type="file"-->
-            <!--              accept=".csv"-->
-            <!--              (change)="onFileSelected($event)"-->
-            <!--              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"-->
-            <!--            />-->
-            <!--          </div>-->
-
-            <!--          <div class="text-xs text-gray-600 mb-4">-->
-            <!--            <strong>Formato requerido (separado por comas o tabulaciones):</strong><br/>-->
-            <!--            <code>fecha,tipo_fecha</code> o <code>fecha&nbsp;&nbsp;&nbsp;&nbsp;tipo_fecha</code-->
-            <!--          ><br/>-->
-            <!--            <code>18/11/2025,Día inhábil</code><br/>-->
-            <!--            <code>19/11/2025,Periodo vacacional</code>-->
-            <!--          </div>-->
-
-            <!--          @if (fechasEspeciales.length > 0) {-->
-            <!--            <div class="bg-white p-3 rounded border">-->
-            <!--              <h4 class="font-medium text-sm text-gray-900 mb-2">-->
-            <!--                Fechas especiales cargadas ({{ fechasEspeciales.length }})-->
-            <!--              </h4>-->
-            <!--              <div class="max-h-32 overflow-y-auto space-y-1">-->
-            <!--                @for (fecha of fechasEspeciales; track fecha.fecha) {-->
-            <!--                  <div class="flex justify-between items-center text-xs">-->
-            <!--                    <span>{{ formatearFechaEspanol(fecha.fecha) }}</span>-->
-            <!--                    <span class="bg-yellow-100 px-2 py-1 rounded">{{ fecha.tipoFecha }}</span>-->
-            <!--                  </div>-->
-            <!--                }-->
-            <!--              </div>-->
-            <!--            </div>-->
-            <!--          }-->
-            <!--        </div>-->
-
-            <!-- Fechas del Servicio Social -->
-            <!--        <div class="bg-blue-50 p-4 rounded-lg">-->
-            <!--          <h3 class="text-lg font-medium text-gray-900 mb-4">-->
-            <!--            Fechas del Servicio Social (Carta Compromiso)-->
-            <!--          </h3>-->
-
-            <!--          <div class="grid md:grid-cols-2 gap-4 mb-4">-->
-            <!--            <div>-->
-            <!--              <label class="block text-sm font-medium text-gray-700 mb-2">Fecha de Inicio</label>-->
-            <!--              <input-->
-            <!--                type="date"-->
-            <!--                [(ngModel)]="config().startDate"-->
-            <!--                (change)="calcularPeriodosReporte()"-->
-            <!--                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"-->
-            <!--              />-->
-            <!--            </div>-->
-            <!--            <div>-->
-            <!--              <label class="block text-sm font-medium text-gray-700 mb-2">Fecha de Fin</label>-->
-            <!--              <input-->
-            <!--                type="date"-->
-            <!--                [(ngModel)]="config().endDate"-->
-            <!--                (change)="calcularPeriodosReporte()"-->
-            <!--                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"-->
-            <!--              />-->
-            <!--            </div>-->
-            <!--          </div>-->
-
-            <!--          &lt;!&ndash; Botón para calcular periodos &ndash;&gt;-->
-            <!--          <button-->
-            <!--            (click)="calcularPeriodosReporte()"-->
-            <!--            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"-->
-            <!--          >-->
-            <!--            Calcular Periodos de Reporte-->
-            <!--          </button>-->
-            <!--        </div>-->
-
-            <!-- Periodos de Reporte -->
-            <!--        @if (reportePeriodos.length > 0) {-->
-            <!--          <div class="bg-green-50 p-4 rounded-lg">-->
-            <!--            <h3 class="text-lg font-medium text-gray-900 mb-4">Seleccionar Periodo de Reporte</h3>-->
-            <!--            <div class="space-y-2">-->
-            <!--              @for (periodo of reportePeriodos; track periodo.numero) {-->
-            <!--                <div-->
-            <!--                  class="flex items-center justify-between p-3 border rounded-lg hover:bg-white cursor-pointer transition-colores"-->
-            <!--                  [class.bg-green-100]="config().reporteActual === periodo.numero"-->
-            <!--                  (click)="seleccionarPeriodo(periodo)"-->
-            <!--                >-->
-            <!--                  <div class="flex items-center space-x-3">-->
-            <!--                    <input-->
-            <!--                      type="radio"-->
-            <!--                      [checked]="config().reporteActual === periodo.numero"-->
-            <!--                      class="text-green-600 focus:ring-green-500"-->
-            <!--                    />-->
-            <!--                    <span class="font-medium">Reporte #{{ periodo.numero }}</span>-->
-            <!--                  </div>-->
-            <!--                  <div class="text-sm text-gray-600">-->
-            <!--                    Del {{ formatearFechaEspanol(periodo.del) }} al {{-->
-            <!--                      formatearFechaEspanol(periodo.al)-->
-            <!--                    }}-->
-            <!--                  </div>-->
-            <!--                </div>-->
-            <!--              }-->
-            <!--            </div>-->
-            <!--          </div>-->
-            <!--        }-->
-
-            <!-- Fechas Laborables del Periodo -->
-            <!--        @if (fechasLaborables.length > 0) {-->
-            <!--          <div class="bg-purple-50 p-4 rounded-lg">-->
-            <!--            <h3 class="text-lg font-medium text-gray-900 mb-4">-->
-            <!--              Fechas del Reporte #{{ config().reporteActual }}-->
-            <!--              <span class="text-sm font-normal text-gray-600"-->
-            <!--              >({{ fechasLaborables.length }} días)</span-->
-            <!--              >-->
-            <!--            </h3>-->
-
-            <!--            &lt;!&ndash; Advertencia si hay muchos días &ndash;&gt;-->
-            <!--            @if (config().asistencia && config().asistencia.length > 24) {-->
-            <!--              <div class="mb-4 p-3 bg-orange-100 border border-orange-400 rounded-lg">-->
-            <!--                <div class="flex items-center">-->
-            <!--                  <svg class="h-5 w-5 text-orange-500 mr-2" fill="currentColor" viewBox="0 0 20 20">-->
-            <!--                    <path-->
-            <!--                      fill-rule="evenodd"-->
-            <!--                      d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"-->
-            <!--                      clip-rule="evenodd"-->
-            <!--                    ></path>-->
-            <!--                  </svg>-->
-            <!--                  <div class="text-sm text-orange-700">-->
-            <!--                    <strong>Atención:</strong> Este período tiene {{ config().asistencia.length }} días-->
-            <!--                    laborables. Es posible que el PDF no tenga suficientes campos para mostrar todos los-->
-            <!--                    días.-->
-            <!--                  </div>-->
-            <!--                </div>-->
-            <!--              </div>-->
-            <!--            }-->
-
-            <!--            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-48 overflow-y-auto">-->
-            <!--              @for (dia of config().asistencia; track dia.fecha) {-->
-            <!--                <div class="bg-white p-2 rounded border text-sm">-->
-            <!--                  <div class="font-medium">{{ formatearFechaEspanol(dia.fecha) }}</div>-->
-            <!--                  <div class="text-xs text-gray-500">{{ dia.fecha | date:'EEEE':'':'es' }}</div>-->
-            <!--                  @if (dia.horasPorDia === '0') {-->
-            <!--                    <div class="text-xs text-red-600 font-medium">{{ dia.horaEntrada }}</div>-->
-            <!--                  } @else {-->
-            <!--                    <div class="text-xs text-green-600">-->
-            <!--                      {{ dia.horaEntrada }} - {{ dia.horaSalida }} ({{ dia.horasPorDia }}h)-->
-            <!--                    </div>-->
-            <!--                  }-->
-            <!--                </div>-->
-            <!--              }-->
-            <!--            </div>-->
-
-            <!--            <div class="mt-4 p-3 bg-white rounded border">-->
-            <!--              <div class="flex justify-between items-center text-sm">-->
-            <!--                <span class="font-medium">Total de días:</span>-->
-            <!--                <span class="bg-purple-100 px-2 py-1 rounded"-->
-            <!--                >{{ fechasLaborables.length }} días</span-->
-            <!--                >-->
-            <!--              </div>-->
-            <!--              <div class="flex justify-between items-center text-sm mt-1">-->
-            <!--                <span class="font-medium">Total de horas laborales:</span>-->
-            <!--                <span class="bg-purple-100 px-2 py-1 rounded">{{ config().totalHorasMes }} horas</span>-->
-            <!--              </div>-->
-            <!--              <div class="flex justify-between items-center text-sm mt-1">-->
-            <!--                <span class="font-medium">Días especiales:</span>-->
-            <!--                <span class="bg-yellow-100 px-2 py-1 rounded">-->
-            <!--                {{ contarDiasEspeciales() }} días-->
-            <!--              </span>-->
-            <!--              </div>-->
-            <!--            </div>-->
-            <!--          </div>-->
-            <!--        }-->
-
-            <!-- Estadísticas -->
-            <!--        <div>-->
-            <!--          <label class="flex items-center">-->
-            <!--            <input-->
-            <!--              type="checkbox"-->
-            <!--              [(ngModel)]="config().includeStatistics"-->
-            <!--              class="rounded border-gray-300 text-green-600 focus:ring-green-500"-->
-            <!--            />-->
-            <!--            <span class="ml-2 text-sm text-gray-700">Incluir estadísticas detalladas</span>-->
-            <!--          </label>-->
-            <!--        </div>-->
-
-            <!-- Botón Generar -->
-            <!--        <button-->
-            <!--          (click)="generateReport()"-->
-            <!--          [disabled]="!config().startDate || !config().endDate"-->
-            <!--          class="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2"-->
-            <!--        >-->
-            <!--          <i class="lucide-eye h-5 w-5"></i>-->
-            <!--          <span>Generar Vista Previa</span>-->
-            <!--        </button>-->
-
-            <!--        &lt;!&ndash; Botón para listar campos del PDF &ndash;&gt;-->
-            <!--        <button-->
-            <!--          (click)="listFormFields()"-->
-            <!--          class="w-full px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center space-x-2"-->
-            <!--        >-->
-            <!--          <i class="lucide-list h-5 w-5"></i>-->
-            <!--          <span>Listar Campos del PDF</span>-->
-            <!--        </button>-->
-            <!--      </div>-->
-
-            <!-- PDF Preview -->
-            <!--      <div class="h-min-1/2-screen">-->
-            <!--        <h3 class="text-lg font-semibold text-gray-900 mb-4">Vista Previa del Reporte</h3>-->
-            <!--        <iframe [src]="getPdfUrl()" class="w-full h-full"></iframe>-->
-            <!--      </div>-->
           </div>
         </div>
       </div>

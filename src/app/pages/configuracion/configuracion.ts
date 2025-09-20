@@ -1,10 +1,10 @@
-import {Component, computed, LOCALE_ID, model, OnInit, signal} from '@angular/core';
+import {Component, computed, LOCALE_ID, model, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
-import {PDFDocument, rgb} from 'pdf-lib';
+import {PDFDocument, rgb, StandardFonts} from 'pdf-lib';
 import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
 import moment from 'moment';
 import 'moment/locale/es';
-import {DatePipe, JsonPipe, NgClass, registerLocaleData} from '@angular/common';
+import {NgClass, registerLocaleData} from '@angular/common';
 import localeEs from '@angular/common/locales/es';
 import {StepIndicator} from './step-indicator/step-indicator';
 import JSZip from 'jszip';
@@ -30,6 +30,11 @@ export interface ReportConfig {
   periodoAl: string;
   nombreResponsableDirecto: string;
   cargoResponsableDirecto: string;
+  correo: string;
+  telefono: string;
+  reportDateMonth: string;
+  semestre: string;
+  prestatario: string;
   asistencia: AsistenciaDia[];
   totalHorasMes: string;
   totalHorasAcumuladas: string;
@@ -66,15 +71,24 @@ interface ReporteGenerado {
   student: {
     name: string;
     career: string;
+    correo: string;
+    telefono: string;
   };
+  leadPersonal: {
+    name: string;
+    position: string;
+  },
   specialDates: FechaEspecial[];
   asistencia: AsistenciaDia[];
+  reportDateMonth: string;
   pdfUrl?: SafeResourceUrl;
+  pdfMonthUrl?: SafeResourceUrl;
+  resumeActivities: string;
 }
 
 @Component({
   selector: 'app-configuracion',
-  imports: [FormsModule, DatePipe, StepIndicator, NgClass, JsonPipe],
+  imports: [FormsModule, StepIndicator, NgClass],
   providers: [{provide: LOCALE_ID, useValue: 'es'}],
   templateUrl: './configuracion.html',
   styleUrl: './configuracion.scss',
@@ -91,8 +105,8 @@ export class Configuracion {
   fechasEspeciales: FechaEspecial[] = [];
   csvFile: File | null = null;
   syncHorarios: boolean = false;
-  stepTitles = ['Información', 'Horarios', 'Fechas', 'Previsualizar'];
-  totalSteps = 4;
+  stepTitles = ['Información', 'Horarios', 'Fechas', 'Previsualizar reportes de asistencia', 'Previsualizar reportes mensuales'];
+  totalSteps = 5;
 
   horariosServicio: hosrariosServicio[] = [
     {day: 'monday', entrada: '07:00', salida: '11:00'},
@@ -115,6 +129,7 @@ export class Configuracion {
   // Señales para reportes y selección
   reports = signal<ReporteGenerado[]>([]);
   selectedReports = signal<Set<string>>(new Set());
+  selectedReportsMonth = signal<Set<string>>(new Set());
   isGenerating = signal(false);
 
   constructor(private sanitizer: DomSanitizer) {
@@ -175,6 +190,8 @@ export class Configuracion {
         return 'Agregue fechas especiales como días festivos o vacaciones (opcional).';
       case 4:
         return 'Revise la configuración y genere los reportes PDF. Máximo 7 reportes por generación.';
+      case 5:
+        return 'Seleccione los reportes que desea descargar en un archivo ZIP.';
       default:
         return '';
     }
@@ -294,10 +311,6 @@ export class Configuracion {
     form.getTextField('Carrera').setText(this.config().carrera);
     form.getTextField('Boleta').setText(this.config().boleta);
 
-    // Campos del responsable directo - agregar texto por coordenadas si no existen los campos
-    // if (this.campoExiste(form, 'Nombre Responsable')) {
-    //   form.getTextField('Nombre Responsable').setText(this.config().nombreResponsableDirecto);
-    // } else {
     // Agregar texto directamente por coordenadas (parte inferior izquierda)
     const pages = pdfDoc.getPages();
     const firstPage = pages[0];
@@ -451,17 +464,35 @@ export class Configuracion {
     this.selectedReports.set(set);
   }
 
+  toggleReportSelectionMonth(id: string) {
+    const set = new Set(this.selectedReportsMonth());
+    if (set.has(id)) {
+      set.delete(id);
+    } else {
+      set.add(id)
+    }
+    this.selectedReportsMonth.set(set)
+  }
+
   selectAllReports() {
     const allIds = this.reports().map(r => r.id);
     this.selectedReports.set(new Set(allIds));
+  }
+
+  selectAllReportsMonth() {
+    const allIds = this.reports().map(r => r.id);
+    this.selectedReportsMonth.set(new Set(allIds));
   }
 
   deselectAllReports() {
     this.selectedReports.set(new Set());
   }
 
+  deselectAllReportsMoth() {
+    this.selectedReportsMonth.set(new Set());
+  }
+
   previewReport(report: ReporteGenerado) {
-    // Actualiza el periodo y asistencia en config y llama a generateReport()
     this.config.set({
       ...this.config(),
       periodoDel: report.period.startDate,
@@ -470,7 +501,6 @@ export class Configuracion {
       noReporteMensual: report.period.weekNumber.toString(),
       reporteActual: report.period.weekNumber,
     });
-    // this.generateReport();
   }
 
   async downloadSelectedReports() {
@@ -503,6 +533,50 @@ export class Configuracion {
       const a = document.createElement('a');
       a.href = url;
       a.download = `Reportes_ServicioSocial_${this.config().nombrePrestador.replace(/\s+/g, '_')}.zip`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      alert(`Se descargaron ${reportesSeleccionados.length} reportes en formato ZIP.`);
+    } catch (error) {
+      console.error('Error generando ZIP:', error);
+      alert('Error al generar el archivo ZIP. Por favor intenta de nuevo.');
+    } finally {
+      this.isGenerating.set(false);
+    }
+  }
+
+  async downloadSelectedReportsMonth() {
+    if (this.selectedReportsMonth().size === 0) {
+      alert('No hay reportes seleccionados para descargar.');
+      return;
+    }
+
+    this.isGenerating.set(true);
+
+    try {
+      const zip = new JSZip();
+      const reportesSeleccionados = this.reports().filter(report =>
+        this.selectedReportsMonth().has(report.id)
+      );
+
+      for (const report of reportesSeleccionados) {
+        try {
+          const pdfBytes = await this.generateReportMonthPdfBytes(report);
+          const fileName = `Reporte_mensual_${report.period.weekNumber}_${this.config().nombrePrestador.replace(/\s+/g, '_')}.pdf`;
+          zip.file(fileName, pdfBytes);
+        } catch (error) {
+          console.error(`Error generando PDF para reporte ${report.period.weekNumber}:`, error);
+        }
+      }
+
+      const zipBlob = await zip.generateAsync({type: 'blob'});
+
+      const url = URL.createObjectURL(zipBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Reportes_ServicioSocial_Mensual${this.config().nombrePrestador.replace(/\s+/g, '_')}.zip`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -571,9 +645,17 @@ export class Configuracion {
         student: {
           name: this.config().nombrePrestador,
           career: this.config().carrera,
+          correo: this.config().correo,
+          telefono: this.config().telefono
+        },
+        leadPersonal: {
+          name: this.config().nombreResponsableDirecto,
+          position: this.config().cargoResponsableDirecto
         },
         specialDates: specialDatesEnAsistencia,
+        reportDateMonth: this.formatearFechaEspanol(this.config().reportDateMonth),
         asistencia,
+        resumeActivities: ''
       });
     });
 
@@ -875,26 +957,26 @@ export class Configuracion {
       form.getTextField('Boleta').setText(this.config().boleta);
 
 
-        const pages = pdfDoc.getPages();
-        const firstPage = pages[0];
+      const pages = pdfDoc.getPages();
+      const firstPage = pages[0];
 
-        if (this.config().nombreResponsableDirecto) {
-          firstPage.drawText(`${this.config().nombreResponsableDirecto}`, {
-            x: usarTestPdf ? 28 : 28,
-            y: usarTestPdf ? 40 : 60,
-            size: 12,
-            color: rgb(0, 0, 0)
-          });
-        }
+      if (this.config().nombreResponsableDirecto) {
+        firstPage.drawText(`${this.config().nombreResponsableDirecto}`, {
+          x: usarTestPdf ? 28 : 28,
+          y: usarTestPdf ? 40 : 60,
+          size: 12,
+          color: rgb(0, 0, 0)
+        });
+      }
 
-        if (this.config().cargoResponsableDirecto) {
-          firstPage.drawText(`${this.config().cargoResponsableDirecto}`, {
-            x: usarTestPdf ? 28 : 28,
-            y: usarTestPdf ? 25 : 45,
-            size: 12,
-            color: rgb(0, 0, 0)
-          });
-        }
+      if (this.config().cargoResponsableDirecto) {
+        firstPage.drawText(`${this.config().cargoResponsableDirecto}`, {
+          x: usarTestPdf ? 28 : 28,
+          y: usarTestPdf ? 25 : 45,
+          size: 12,
+          color: rgb(0, 0, 0)
+        });
+      }
 
       // Campos de la Tabla de Asistencia
       const maxCampos = this.obtenerMaximoCamposDisponibles(form);
@@ -957,13 +1039,62 @@ export class Configuracion {
     }
   }
 
-  // Genera PDFs para todos los reportes
-  async generateAllReportsPdf() {
-    this.isGenerating.set(true);
+  async generateSingleReportMonthPdf(report: ReporteGenerado) {
+    try {
+      const url = 'assets/reporte-mensual.pdf';
+      const existingPdfBytes = await fetch(url).then((res) => res.arrayBuffer());
+      const pdfDoc = await PDFDocument.load(existingPdfBytes);
+      const form = pdfDoc.getForm();
+      const fields = form.getFields();
 
+      fields.forEach((field) => {
+        console.log('Campo:', field.getName());
+      });
+
+      form.getTextField('fecha_elaboracion').setText(report.reportDateMonth);
+      form.getTextField('nombre_1').setText(report.student.name)
+      form.getTextField('nombre_2').setText(report.student.name)
+      form.getTextField('periodo_del').setText(report.period.startDate)
+      form.getTextField('al').setText(report.period.endDate)
+      form.getTextField('responsable_directo').setText(report.leadPersonal.name)
+      form.getTextField('cargo_responsable').setText(report.leadPersonal.position)
+      form.getTextField('No').setText(report.period.weekNumber.toString())
+      form.getTextField('boleta').setText(this.config().boleta)
+      form.getTextField('programa_academico').setText(this.config().unidadAcademica)
+      form.getTextField('semestre').setText(this.config().semestre)
+      form.getTextField('telefono_particular').setText(report.student.telefono)
+      form.getTextField('correo_electronico').setText(report.student.correo)
+      form.getTextField('prestatario').setText(this.config().prestatario)
+      form.getTextField('actividades_realizadas').setText(report.resumeActivities)
+
+      const pdfBytes = await pdfDoc.save();
+      const blob = new Blob([new Uint8Array(pdfBytes)], {type: 'application/pdf'});
+      const urlBlob = URL.createObjectURL(blob);
+
+      // Actualizar el reporte con la nueva URL
+      const reportes = this.reports();
+      const updatedReportes = reportes.map(r =>
+        r.id === report.id
+          ? {...r, pdfMonthUrl: this.sanitizer.bypassSecurityTrustResourceUrl(urlBlob)}
+          : r
+      );
+      this.reports.set(updatedReportes);
+
+    } catch (error) {
+      console.error('Error generando PDF del reporte:', error);
+    }
+  }
+
+  // Genera PDFs para todos los reportes
+  async generateAllReportsPdf(reportType: 'single' | 'month' = 'single') {
+    this.isGenerating.set(true);
     try {
       for (const report of this.reports()) {
-        await this.generateSingleReportPdf(report);
+        if (reportType === 'single') {
+          await this.generateSingleReportPdf(report);
+        } else {
+          await this.generateSingleReportMonthPdf(report);
+        }
         // Pequeña pausa para evitar bloquear la UI
         await new Promise(resolve => setTimeout(resolve, 100));
       }
@@ -991,7 +1122,6 @@ export class Configuracion {
     return acumulado;
   }
 
-  // Método auxiliar para generar PDF como bytes (sin crear URL)
   private async generateReportPdfBytes(report: ReporteGenerado): Promise<Uint8Array> {
     const maxCamposDefault = 24;
     const usarTestPdf = report.asistencia.length > maxCamposDefault;
@@ -1077,6 +1207,37 @@ export class Configuracion {
     return new Uint8Array(pdfBytes);
   }
 
+  private async generateReportMonthPdfBytes(report: ReporteGenerado): Promise<Uint8Array> {
+    const url = 'assets/reporte-mensual.pdf';
+    const existingPdfBytes = await fetch(url).then((res) => res.arrayBuffer());
+    const pdfDoc = await PDFDocument.load(existingPdfBytes);
+    const form = pdfDoc.getForm();
+    const fields = form.getFields();
+
+    fields.forEach((field) => {
+      console.log('Campo:', field.getName());
+    });
+
+    form.getTextField('fecha_elaboracion').setText(report.reportDateMonth);
+    form.getTextField('nombre_1').setText(report.student.name)
+    form.getTextField('nombre_2').setText(report.student.name)
+    form.getTextField('periodo_del').setText(report.period.startDate)
+    form.getTextField('al').setText(report.period.endDate)
+    form.getTextField('responsable_directo').setText(report.leadPersonal.name)
+    form.getTextField('cargo_responsable').setText(report.leadPersonal.position)
+    form.getTextField('No').setText(report.period.weekNumber.toString())
+    form.getTextField('boleta').setText(this.config().boleta)
+    form.getTextField('programa_academico').setText(this.config().unidadAcademica)
+    form.getTextField('semestre').setText(this.config().semestre)
+    form.getTextField('telefono_particular').setText(report.student.telefono)
+    form.getTextField('correo_electronico').setText(report.student.correo)
+    form.getTextField('prestatario').setText(this.config().prestatario)
+    form.getTextField('actividades_realizadas').setText(report.resumeActivities)
+
+    const pdfBytes = await pdfDoc.save();
+    return new Uint8Array(pdfBytes);
+  }
+
   // Métodos para actualizar los campos del config
   updateBoleta(value: string) {
     this.config.set({...this.config(), boleta: value});
@@ -1098,6 +1259,18 @@ export class Configuracion {
     this.config.set({...this.config(), startDate: value});
   }
 
+  updateReportDateMonth(value: string) {
+    this.config.set({...this.config(), reportDateMonth: value});
+  }
+
+  updateReportSemestre(value: string) {
+    this.config.set({...this.config(), semestre: value});
+  }
+
+  updateReportprestatario(value: string) {
+    this.config.set({...this.config(), prestatario: value});
+  }
+
   updateEndDate(value: string) {
     this.config.set({...this.config(), endDate: value});
   }
@@ -1108,6 +1281,23 @@ export class Configuracion {
 
   updateCargoResponsableDirecto(value: string) {
     this.config.set({...this.config(), cargoResponsableDirecto: value});
+  }
+
+  updateCorreo(value: string) {
+    this.config.set({...this.config(), correo: value});
+  }
+
+  updateTelefono(value: string) {
+    this.config.set({...this.config(), telefono: value});
+  }
+
+  updateResumeActivities(reportId: string, value: string) {
+    const updatedReports = this.reports().map(report =>
+      report.id === reportId
+        ? {...report, resumeActivities: value}
+        : report
+    );
+    this.reports.set(updatedReports);
   }
 }
 
@@ -1136,6 +1326,11 @@ const config: ReportConfig = {
   noReporteMensual: '',
   periodoDel: '',
   periodoAl: '',
+  correo: '',
+  semestre: '',
+  reportDateMonth: '',
+  telefono: '',
+  prestatario: '',
   reporteActual: 0,
   asistencia: [],
   totalHorasMes: '',

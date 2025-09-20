@@ -13,4 +13,5 @@ export class StepIndicator {
   @Input() currentStep = 1;
   @Input() totalSteps = 3;
   @Input() stepTitles: string[] = [];
+  protected readonly Math = Math;
 }
