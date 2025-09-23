@@ -946,6 +946,9 @@ export class Configuracion {
       const pdfDoc = await PDFDocument.load(existingPdfBytes);
       const form = pdfDoc.getForm();
 
+      //CustomFont para aceptar Ñ
+      const customFont = await pdfDoc.embedFont(StandardFonts.Helvetica)
+
       // Información del Prestador y el Reporte
       form.getTextField('Correspondiente al reporte mensual de actividades No')
         .setText(report.period.weekNumber.toString());
@@ -965,7 +968,8 @@ export class Configuracion {
           x: usarTestPdf ? 28 : 28,
           y: usarTestPdf ? 40 : 60,
           size: 12,
-          color: rgb(0, 0, 0)
+          color: rgb(0, 0, 0),
+          font: customFont
         });
       }
 
@@ -974,7 +978,8 @@ export class Configuracion {
           x: usarTestPdf ? 28 : 28,
           y: usarTestPdf ? 25 : 45,
           size: 12,
-          color: rgb(0, 0, 0)
+          color: rgb(0, 0, 0),
+          font: customFont
         });
       }
 
@@ -991,15 +996,19 @@ export class Configuracion {
           const campoHoras = `Horas por día${i + 1}`;
 
           if (this.campoExiste(form, campoFecha)) {
+            form.getTextField(campoFecha).updateAppearances(customFont)
             form.getTextField(campoFecha).setText(this.formatearFechaEspanol(dia.fecha));
           }
           if (this.campoExiste(form, campoEntrada)) {
+            form.getTextField(campoEntrada).updateAppearances(customFont)
             form.getTextField(campoEntrada).setText(dia.horaEntrada);
           }
           if (this.campoExiste(form, campoSalida)) {
+            form.getTextField(campoSalida).updateAppearances(customFont)
             form.getTextField(campoSalida).setText(dia.horaSalida);
           }
           if (this.campoExiste(form, campoHoras)) {
+            form.getTextField(campoHoras).updateAppearances(customFont)
             form.getTextField(campoHoras).setText(dia.horasPorDia);
           }
         } catch (error) {
@@ -1133,6 +1142,9 @@ export class Configuracion {
     const pdfDoc = await PDFDocument.load(existingPdfBytes);
     const form = pdfDoc.getForm();
 
+    //CustomFont para aceptar Ñ
+    const customFont = await pdfDoc.embedFont(StandardFonts.Helvetica)
+
     form.getTextField('Correspondiente al reporte mensual de actividades No')
       .setText(report.period.weekNumber.toString());
     form.getTextField('Periodo del').setText(report.period.startDate);
@@ -1150,7 +1162,8 @@ export class Configuracion {
         x: usarTestPdf ? 28 : 28,
         y: usarTestPdf ? 40 : 60,
         size: 12,
-        color: rgb(0, 0, 0)
+        color: rgb(0, 0, 0),
+        font: customFont
       });
     }
 
@@ -1159,7 +1172,8 @@ export class Configuracion {
         x: usarTestPdf ? 28 : 28,
         y: usarTestPdf ? 25 : 45,
         size: 12,
-        color: rgb(0, 0, 0)
+        color: rgb(0, 0, 0),
+        font: customFont
       });
     }
 
@@ -1175,15 +1189,19 @@ export class Configuracion {
         const campoHoras = `Horas por día${i + 1}`;
 
         if (this.campoExiste(form, campoFecha)) {
+          form.getTextField(campoFecha).updateAppearances(customFont)
           form.getTextField(campoFecha).setText(this.formatearFechaEspanol(dia.fecha));
         }
         if (this.campoExiste(form, campoEntrada)) {
+          form.getTextField(campoEntrada).updateAppearances(customFont)
           form.getTextField(campoEntrada).setText(dia.horaEntrada);
         }
         if (this.campoExiste(form, campoSalida)) {
+          form.getTextField(campoSalida).updateAppearances(customFont)
           form.getTextField(campoSalida).setText(dia.horaSalida);
         }
         if (this.campoExiste(form, campoHoras)) {
+          form.getTextField(campoHoras).updateAppearances(customFont)
           form.getTextField(campoHoras).setText(dia.horasPorDia);
         }
       } catch (error) {
