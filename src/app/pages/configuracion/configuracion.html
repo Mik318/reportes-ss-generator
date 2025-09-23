@@ -785,12 +785,21 @@
 
             <!-- Help Text -->
             <div class="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <div class="flex items-start">
-                <div class="text-yellow-600 mr-3">💡</div>
-                <div class="text-sm text-yellow-800">
-                  <strong>Ayuda:</strong>
-                  {{ helpText() }}
+              <div class="flex items-start justify-between">
+                <div class="flex items-start">
+                  <div class="text-yellow-600 mr-3">💡</div>
+                  <div class="text-sm text-yellow-800">
+                    <strong>Ayuda:</strong>
+                    {{ helpText() }}
+                  </div>
                 </div>
+                <button
+                  (click)="clearSavedData()"
+                  class="px-3 py-1 text-xs bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors"
+                  title="Limpiar todos los datos guardados"
+                >
+                  Limpiar datos
+                </button>
               </div>
             </div>
           </div>
