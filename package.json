@@ -8,6 +8,7 @@
     "build:prod": "ng build --configuration production",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
+    "generate:auth-api": "node tools/reportes-generator-api/generate.js",
     "serve:ssr:reportes-ss-generator": "node dist/reportes-ss-generator/server/server.mjs",
     "deploy": "ng build --configuration production --base-href /reportes-ss-generator/ && npx angular-cli-ghpages --dir=dist/reportes-ss-generator",
     "deploy:github": "npm run build:prod && npx angular-cli-ghpages --dir=dist/reportes-ss-generator"

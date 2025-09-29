@@ -1,0 +1,145 @@
+openapi: 3.1.0
+info:
+  title: API Reportes IA
+  version: 0.1.0
+paths:
+  /reports/:
+    post:
+      tags:
+      - reports
+      summary: Crear Reporte
+      operationId: crear_reporte_reports__post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReportRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - JWTBearer: []
+  /auth/get-token:
+    get:
+      tags:
+      - Autenticacion
+      summary: Get Token
+      operationId: get_token_auth_get_token_get
+      parameters:
+      - name: email
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Email
+      - name: password
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Password
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthTokenResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /openapi.yaml:
+    get:
+      tags:
+      - Documentacion
+      summary: Get Openapi Yaml
+      description: Descargar OpenAPI en YAML
+      operationId: get_openapi_yaml_openapi_yaml_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+components:
+  schemas:
+    AuthTokenResponse:
+      properties:
+        access_token:
+          type: string
+          title: Access Token
+        token_type:
+          type: string
+          title: Token Type
+          default: bearer
+      type: object
+      required:
+      - access_token
+      title: AuthTokenResponse
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ReportRequest:
+      properties:
+        prompt:
+          type: string
+          title: Prompt
+          description: Texto para generar el reporte
+      type: object
+      required:
+      - prompt
+      title: ReportRequest
+    ReportResponse:
+      properties:
+        report:
+          type: string
+          title: Report
+      type: object
+      required:
+      - report
+      title: ReportResponse
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+  securitySchemes:
+    JWTBearer:
+      type: http
+      scheme: bearer

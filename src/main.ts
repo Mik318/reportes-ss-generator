@@ -1,13 +1,12 @@
-// main.ts
 import { bootstrapApplication } from '@angular/platform-browser';
-import { provideRouter } from '@angular/router';
-import { HashLocationStrategy, LocationStrategy } from '@angular/common';
-import { routes } from './app/app.routes';
-import {App} from './app/app';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { App } from './app/app';
+import { appConfig } from './app/app.config';
 
 bootstrapApplication(App, {
+  ...appConfig,
   providers: [
-    provideRouter(routes),
-    { provide: LocationStrategy, useClass: HashLocationStrategy }
+    ...appConfig.providers,
+    provideHttpClient(withInterceptors([]))
   ]
-});
+}).catch(err => console.error(err));

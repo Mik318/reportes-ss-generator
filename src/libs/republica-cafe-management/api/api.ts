@@ -1,0 +1,10 @@
+export * from './autenticacion.service';
+import { AutenticacionService } from './autenticacion.service';
+export * from './autenticacion.serviceInterface';
+export * from './documentacion.service';
+import { DocumentacionService } from './documentacion.service';
+export * from './documentacion.serviceInterface';
+export * from './reports.service';
+import { ReportsService } from './reports.service';
+export * from './reports.serviceInterface';
+export const APIS = [AutenticacionService, DocumentacionService, ReportsService];
