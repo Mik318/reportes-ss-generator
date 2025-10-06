@@ -1,0 +1,39 @@
+{
+  "generatorName": "typescript-angular",
+  "inputSpec": "./openapi.yaml",
+  "outputDir": "../../src/libs/auth-api",
+  "templateDir": null,
+  "auth": null,
+  "systemProperties": {},
+  "configOptions": {
+    "packageName": "auth-api",
+    "packageVersion": "1.0.0",
+    "clientPackage": "auth-api",
+    "supportsES6": true,
+    "withInterfaces": true,
+    "taggedUnions": true,
+    "stringEnums": true,
+    "enumPropertyNaming": "original",
+    "modelPropertyNaming": "camelCase",
+    "paramNaming": "camelCase",
+    "npmName": "auth-api",
+    "snapshot": false,
+    "ngVersion": "17.0.0",
+    "serviceSuffix": "Service",
+    "fileNaming": "kebab-case"
+  },
+  "additionalProperties": {
+    "npmName": "auth-api",
+    "npmVersion": "1.0.0",
+    "supportsES6": true,
+    "withInterfaces": true,
+    "taggedUnions": true,
+    "stringEnums": true,
+    "enumPropertyNaming": "original"
+  },
+  "importMappings": {},
+  "typeMappings": {},
+  "languageSpecificPrimitives": [],
+  "reservedWordMappings": {},
+  "validationRules": {}
+}
