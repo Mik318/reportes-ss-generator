@@ -631,10 +631,24 @@ export class ConfiguracionPracticas {
     page1.drawText(this.config().boleta, { ...p1c.boleta, font, size: 12 });
     page1.drawText(report.student.career, { ...p1c.carrera, font, size: 12 });
     page1.drawText(report.student.correo, { ...p1c.email, font, size: 12 });
-    page1.drawText(report.leadPersonal.name, { ...p1c.nombreResponsable, font, size: 12 });
-    page1.drawText(report.leadPersonal.position, { ...p1c.puestoResponsable, font, size: 12 });
-    // page1.drawText(moment(this.config().reportDateMonth).format('DD/MM/YYYY'), {
-    page1.drawText(moment(this.config().reportDateMonth).format('DD [de] MMMM [de] YYYY'), {
+
+    const nombreX = this.getNombreResponsableX(report.leadPersonal.name);
+    page1.drawText(report.leadPersonal.name, {
+      ...p1c.nombreResponsable,
+      x: nombreX,
+      font,
+      size: 12,
+    });
+
+    const puestoX = this.getPuestoResponsableX(report.leadPersonal.position);
+    page1.drawText(report.leadPersonal.position, {
+      ...p1c.puestoResponsable,
+      x: puestoX,
+      font,
+      size: 12,
+    });
+
+    page1.drawText(moment(this.config().reportDateMonth).format('DD/MM/YYYY'), {
       ...p1c.fechaEntrega,
       font,
       size: 12,
@@ -711,6 +725,26 @@ export class ConfiguracionPracticas {
   private scaleToFit(srcWidth: number, srcHeight: number, maxWidth: number, maxHeight: number) {
     const ratio = Math.min(maxWidth / srcWidth, maxHeight / srcHeight);
     return { width: srcWidth * ratio, height: srcHeight * ratio };
+  }
+
+  private getNombreResponsableX(name: string): number {
+    if (name.length > 25) {
+      return 90;
+    } else if (name.length > 20) {
+      return 110;
+    } else if (name.length > 15) {
+      return 120;
+    } else {
+      return 130;
+    }
+  }
+
+  private getPuestoResponsableX(position: string): number {
+    if (position.length >= 35) {
+      return 320;
+    } else {
+      return 350;
+    }
   }
 
   private async generateReportPdfBytes(report: ReporteGenerado): Promise<Uint8Array> {
