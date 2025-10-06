@@ -1,6 +1,6 @@
 import { Component, computed, LOCALE_ID, model, signal } from '@angular/core';
 import { PDFDocument, StandardFonts, PDFImage } from 'pdf-lib';
-
+import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { StepIndicator } from '../../shared/components/step-indicator/step-indicator';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
@@ -100,14 +100,8 @@ export class ConfiguracionPracticas {
   fechasEspeciales: FechaEspecial[] = [];
   csvFile: File | null = null;
   syncHorarios: boolean = false;
-  stepTitles = [
-    'Información',
-    'Horarios',
-    'Fechas',
-    'Previsualizar reportes de asistencia',
-    'Previsualizar reportes mensuales',
-  ];
-  totalSteps = 5;
+  stepTitles = ['Información', 'Horarios', 'Fechas', 'Previsualizar reportes de asistencia'];
+  totalSteps = 4;
 
   horariosServicio: hosrariosServicio[] = [
     { day: 'monday', entrada: '07:00', salida: '11:00' },
@@ -132,7 +126,10 @@ export class ConfiguracionPracticas {
   isGenerating = signal(false);
   signatureImage = signal<string | null>(null);
 
-  constructor(private sanitizer: DomSanitizer) {
+  constructor(
+    private sanitizer: DomSanitizer,
+    private router: Router,
+  ) {
     // Cargar datos guardados de todos los pasos al inicializar
     this.loadStep1FromLocalStorage();
     this.loadStep2FromLocalStorage();
@@ -164,13 +161,14 @@ export class ConfiguracionPracticas {
 
   nextStep() {
     if (this.currentStep() < this.totalSteps) {
-      // Guardar datos del paso actual antes de avanzar
       this.saveCurrentStepData();
-
       if (this.currentStep() + 1 === 4) {
         this.calcularPeriodosReporte();
       }
       this.currentStep.set(this.currentStep() + 1);
+    } else {
+      this.clearSavedData();
+      this.router.navigate(['/']);
     }
   }
 
@@ -648,7 +646,7 @@ export class ConfiguracionPracticas {
       size: 12,
     });
 
-    page1.drawText(moment(this.config().reportDateMonth).format('DD/MM/YYYY'), {
+    page1.drawText(moment(this.config().reportDateMonth).format('DD [de] MMMM [de] YYYY'), {
       ...p1c.fechaEntrega,
       font,
       size: 12,
