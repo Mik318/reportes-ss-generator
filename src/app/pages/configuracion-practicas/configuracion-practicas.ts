@@ -1,5 +1,5 @@
 import { Component, computed, LOCALE_ID, model, signal } from '@angular/core';
-import { PDFDocument, StandardFonts } from 'pdf-lib';
+import { PDFDocument, StandardFonts, PDFImage } from 'pdf-lib';
 
 import { FormsModule } from '@angular/forms';
 import { StepIndicator } from '../../shared/components/step-indicator/step-indicator';
@@ -34,6 +34,7 @@ export interface ReportConfig {
   totalHorasMes: string;
   totalHorasAcumuladas: string;
   reporteActual: number;
+  signatureImage: string | null;
 }
 
 export interface FechaEspecial {
@@ -80,7 +81,6 @@ interface ReporteGenerado {
   reportDateMonth: string;
   pdfUrl?: SafeResourceUrl;
   pdfMonthUrl?: SafeResourceUrl;
-  resumeActivities: string;
 }
 
 @Component({
@@ -130,6 +130,7 @@ export class ConfiguracionPracticas {
   reports = signal<ReporteGenerado[]>([]);
   selectedReports = signal<Set<string>>(new Set());
   isGenerating = signal(false);
+  signatureImage = signal<string | null>(null);
 
   constructor(private sanitizer: DomSanitizer) {
     // Cargar datos guardados de todos los pasos al inicializar
@@ -244,7 +245,24 @@ export class ConfiguracionPracticas {
     return this.fechasEspeciales.find((fe) => fe.fecha === fecha) || null;
   }
 
+  removeSignature(): void {
+    this.updateReporteState({ signatureImage: null });
+    this.generateAllReportsPdf();
+  }
+
   // --- Fechas y periodos ---
+  onSignatureSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.updateReporteState({ signatureImage: e.target?.result as string });
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
   formatearFechaEspanol(fecha: string): string {
     moment.locale('es');
     return moment(fecha).format('DD [de] MMMM [de] YYYY');
@@ -457,7 +475,6 @@ export class ConfiguracionPracticas {
         specialDates: specialDatesEnAsistencia,
         reportDateMonth: this.formatearFechaEspanol(this.config().reportDateMonth),
         asistencia,
-        resumeActivities: '',
       });
     });
     this.reports.set(reportes);
@@ -513,7 +530,7 @@ export class ConfiguracionPracticas {
       const url = URL.createObjectURL(zipBlob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `Reportes_ServicioSocial_${this.config().nombreAlumno.replace(/\s+/g, '_')}.zip`;
+      a.download = `Reportes_PracticasProfesionales_${this.config().nombreAlumno.replace(/\s+/g, '_')}.zip`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -576,10 +593,22 @@ export class ConfiguracionPracticas {
   }
 
   private async fillPdf(report: ReporteGenerado): Promise<PDFDocument> {
-    const url = 'assets/hojas-de-asistencia.pdf';
-    const existingPdfBytes = await fetch(url).then((res) => res.arrayBuffer());
+    const existingPdfBytes = await fetch('assets/hojas-de-asistencia.pdf').then((res) =>
+      res.arrayBuffer(),
+    );
     const pdfDoc = await PDFDocument.load(existingPdfBytes);
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+
+    let embeddedSignature: PDFImage | undefined;
+    if (this.config().signatureImage) {
+      const signatureBytes = this.config().signatureImage as string;
+      if (signatureBytes.startsWith('data:image/png')) {
+        embeddedSignature = await pdfDoc.embedPng(signatureBytes);
+      } else if (signatureBytes.startsWith('data:image/jpeg')) {
+        embeddedSignature = await pdfDoc.embedJpg(signatureBytes);
+      }
+    }
+
     const pages = pdfDoc.getPages();
     const page1 = pages[0];
     const page2 = pages[1];
@@ -618,11 +647,37 @@ export class ConfiguracionPracticas {
     page2.drawText(horasMes.toString(), { ...p2c.totalHoras, font });
     page2.drawText(horasAcumuladas.toString(), { ...p2c.totalHorasAcumuladas, font });
 
-    // --- Fill Page 2 Table ---
-    let rowIndex = 0;
-    report.asistencia.forEach((dia) => {
+    // --- Fill Page 2 Table (Text & Signature) ---
+    if (embeddedSignature) {
+      const sigBoxWidth = 65;
+      const sigBoxHeight = 27;
+      const scaled = this.scaleToFit(
+        embeddedSignature.width,
+        embeddedSignature.height,
+        sigBoxWidth,
+        sigBoxHeight,
+      );
+      let workingDayIndex = 0;
+
+      report.asistencia.forEach((dia) => {
+        if (dia.horasPorDia !== '0') {
+          const signatureX = 420;
+          const firstRowY = 576;
+          const signatureY = firstRowY - workingDayIndex * p2c.table.rowStep;
+          page2.drawImage(embeddedSignature, {
+            x: signatureX,
+            y: signatureY,
+            width: scaled.width,
+            height: scaled.height,
+          });
+          workingDayIndex++;
+        }
+      });
+    }
+
+    report.asistencia.forEach((dia, index) => {
       if (dia.horasPorDia !== '0') {
-        const y = p2c.table.startY - rowIndex * p2c.table.rowStep;
+        const y = p2c.table.startY - index * p2c.table.rowStep;
         page2.drawText(moment(dia.fecha).format('DD/MM/YY'), {
           x: p2c.table.columns.fecha.x,
           y,
@@ -647,11 +702,15 @@ export class ConfiguracionPracticas {
           size: p2c.table.fontSize,
           font,
         });
-        rowIndex++;
       }
     });
 
     return pdfDoc;
+  }
+
+  private scaleToFit(srcWidth: number, srcHeight: number, maxWidth: number, maxHeight: number) {
+    const ratio = Math.min(maxWidth / srcWidth, maxHeight / srcHeight);
+    return { width: srcWidth * ratio, height: srcHeight * ratio };
   }
 
   private async generateReportPdfBytes(report: ReporteGenerado): Promise<Uint8Array> {
@@ -863,8 +922,5 @@ const config: ReportConfig = {
   asistencia: [],
   totalHorasMes: '',
   totalHorasAcumuladas: '',
+  signatureImage: null,
 };
-// 869
-// 944
-// 1142
-//1211

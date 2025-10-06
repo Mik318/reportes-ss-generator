@@ -11,7 +11,7 @@ export const PDF_COORDINATES = {
     carrera: { x: 175, y: 476 },
     email: { x: 175, y: 448 },
     nombreResponsable: { x: 90, y: 287 }, // for length -> 15 130, for length 20 -> 120 for lenght for more than 25 let's put 90
-    puestoResponsable: { x: 350, y: 287 },
+    puestoResponsable: { x: 350, y: 287 }, // 320
     fechaEntrega: { x: 315, y: 245 },
   },
   page2: {
