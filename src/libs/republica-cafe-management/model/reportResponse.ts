@@ -9,7 +9,13 @@
  */
 
 
+/**
+ * Respuesta con el reporte generado.
+ */
 export interface ReportResponse { 
+    /**
+     * Contenido del reporte generado
+     */
     report: string;
 }
 

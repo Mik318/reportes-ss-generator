@@ -1,5 +1,6 @@
 import {Component} from '@angular/core';
 import {Router, RouterLink} from '@angular/router';
+import {Auth} from '../../services/auth';
 
 @Component({
   selector: 'app-nav-bar',
@@ -10,7 +11,15 @@ import {Router, RouterLink} from '@angular/router';
   styleUrl: './nav-bar.scss'
 })
 export class NavBar {
-  constructor(private router: Router) {
+  isLoggedIn!: () => boolean;
+
+  constructor(private router: Router, private auth: Auth) {
+    this.isLoggedIn = this.auth.isLoggedIn;
+  }
+
+  logout() {
+    this.auth.logout();
+    this.router.navigate(['/login']);
   }
 
   getLinkClasses(path: string): string {

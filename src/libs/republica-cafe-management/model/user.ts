@@ -10,13 +10,17 @@
 
 
 /**
- * Solicitud para generar un reporte.
+ * Modelo de usuario del sistema.
  */
-export interface ReportRequest { 
+export interface User { 
     /**
-     * Texto para generar el reporte
+     * Identificador único del usuario
      */
-    prompt: string;
+    id: string;
+    /**
+     * Correo electrónico del usuario
+     */
+    email: string;
 }
 
 

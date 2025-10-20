@@ -10,13 +10,17 @@
 
 
 /**
- * Solicitud para generar un reporte.
+ * Modelo para el login (email y password)
  */
-export interface ReportRequest { 
+export interface LoginRequest { 
     /**
-     * Texto para generar el reporte
+     * Correo del usuario
      */
-    prompt: string;
+    email: string;
+    /**
+     * Contraseña del usuario
+     */
+    password: string;
 }
 
 

@@ -58,8 +58,8 @@ export class ReportsService extends BaseService implements ReportsServiceInterfa
 
         let localVarHeaders = this.defaultHeaders;
 
-        // authentication (JWTBearer) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('JWTBearer', 'Authorization', localVarHeaders, 'Bearer ');
+        // authentication (HTTPBearer) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('HTTPBearer', 'Authorization', localVarHeaders, 'Bearer ');
 
         const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
             'application/json'

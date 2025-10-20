@@ -13,6 +13,8 @@ import { Observable }                                        from 'rxjs';
 
 import { AuthTokenResponse } from '../model/models';
 import { HTTPValidationError } from '../model/models';
+import { LoginRequest } from '../model/models';
+import { User } from '../model/models';
 
 
 import { Configuration }                                     from '../configuration';
@@ -24,11 +26,23 @@ export interface AutenticacionServiceInterface {
     configuration: Configuration;
 
     /**
+     * Create Acount
+     * Crear cuenta: recibir email/password en el body JSON para no exponerlos en la URL.
+     * @param loginRequest 
+     */
+    createAcountAuthCreateAccountPost(loginRequest: LoginRequest, extraHttpRequestParams?: any): Observable<any>;
+
+    /**
      * Get Token
      * 
-     * @param email 
-     * @param password 
+     * @param loginRequest 
      */
-    getTokenAuthGetTokenGet(email: string, password: string, extraHttpRequestParams?: any): Observable<AuthTokenResponse>;
+    getTokenAuthGetTokenPost(loginRequest: LoginRequest, extraHttpRequestParams?: any): Observable<AuthTokenResponse>;
+
+    /**
+     * Verify Token
+     * Verifica que el token en Authorization: Bearer &lt;token&gt; sea válido y devuelve el User.  - Si el token es válido devuelve 200 y el modelo User. - Si no lo es, &#x60;jwt_scheme&#x60; ya lanzará HTTPException con 401.
+     */
+    verifyTokenAuthVerifyTokenGet(extraHttpRequestParams?: any): Observable<User>;
 
 }

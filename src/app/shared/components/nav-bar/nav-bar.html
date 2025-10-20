@@ -11,13 +11,39 @@
 
         <nav class="flex items-center space-x-4">
           <a
-            routerLink="/"
-            [class]="getLinkClasses('/')"
+            routerLink="/home"
+            [class]="getLinkClasses('/home')"
             class="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors"
           >
             <span class="material-icons" style="font-size: 16px;">home</span>
             <span>Inicio</span>
           </a>
+
+          <!-- Si NO está logueado, mostrar enlace a login -->
+          @if (!isLoggedIn()) {
+            <a
+              routerLink="/login"
+              [class]="getLinkClasses('/login')"
+              class="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+            >
+              <div class="material-symbols-outlined" style="font-size: 16px;">
+                account_circle
+              </div>
+              <span>Iniciar sesión</span>
+            </a>
+          }
+
+          <!-- Si está logueado, mostrar botón de logout -->
+          @if (isLoggedIn()) {
+            <button (click)="logout()"
+                    class="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+            >
+              <div class="material-symbols-outlined" style="font-size: 16px;">
+                logout
+              </div>
+              <span>Salir</span>
+            </button>
+          }
         </nav>
       </div>
     </div>
