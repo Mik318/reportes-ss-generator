@@ -1,0 +1,656 @@
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-6">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <app-step-indicator [currentStep]="currentStep()" [totalSteps]="4" [stepTitles]="stepTitles">
+    </app-step-indicator>
+
+    <div class="space-y-6">
+      <div class="bg-white rounded-xl shadow-md p-6 border border-gray-200">
+        <h1 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+          <i class="lucide-file-text h-6 w-6 text-green-600 mr-3"></i>
+          Configuración de Reportes
+        </h1>
+
+        <div class="grid lg:grid-cols-1 gap-8">
+          <!-- Formulario -->
+          <div class="space-y-6">
+            @switch (currentStep()) {
+              @case (1) {
+                <!-- Información del Prestador -->
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                  <!-- Encabezado -->
+                  <div class="flex items-center mb-6">
+                    <span
+                      class="material-symbols-outlined text-blue-500 mr-3"
+                      style="font-size: 24px"
+                      >person</span
+                    >
+                    <h2 class="text-2xl font-bold text-gray-800">Información del Prestador</h2>
+                  </div>
+
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Nombre -->
+                    <div>
+                      <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                        <span class="material-symbols-outlined mr-1">person</span>
+                        Nombre del alumno
+                      </label>
+                      <input
+                        type="text"
+                        [value]="config().nombreAlumno"
+                        (input)="updateReporteState({ nombreAlumno: $any($event.target).value })"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out bg-gray-50 placeholder-gray-400"
+                        placeholder="Juan Pérez"
+                      />
+                    </div>
+
+                    <!-- Cédula -->
+                    <div>
+                      <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                        <span class="material-symbols-outlined mr-1">badge</span>
+                        Boleta
+                      </label>
+                      <input
+                        type="text"
+                        [value]="config().boleta"
+                        (input)="updateReporteState({ boleta: $any($event.target).value })"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out bg-gray-50 placeholder-gray-400"
+                        placeholder="202012456"
+                      />
+                    </div>
+
+                    <!-- Carrera -->
+                    <div>
+                      <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                        <span class="material-symbols-outlined mr-1">school</span>
+                        Carrera
+                      </label>
+                      <input
+                        type="text"
+                        [value]="config().carrera"
+                        (input)="updateReporteState({ carrera: $any($event.target).value })"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out bg-gray-50 placeholder-gray-400"
+                        placeholder="Ingeniería en Sistemas"
+                      />
+                    </div>
+
+                    <div>
+                      <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                        <span class="material-symbols-outlined mr-1">alternate_email</span>
+                        Correo electrónico
+                      </label>
+                      <input
+                        type="text"
+                        [value]="config().correo"
+                        (input)="updateReporteState({ correo: $any($event.target).value })"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out bg-gray-50 placeholder-gray-400"
+                        placeholder="xxxxxxx@xxxxx.xxx"
+                      />
+                    </div>
+
+                    <!-- Período del -->
+                    <div>
+                      <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                        <span class="material-symbols-outlined mr-1">calendar_month</span>
+                        Período del
+                      </label>
+                      <input
+                        type="date"
+                        [value]="config().startDate"
+                        (input)="updateReporteState({ startDate: $any($event.target).value })"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out bg-gray-50 placeholder-gray-400"
+                      />
+                    </div>
+
+                    <!-- Período al -->
+                    <div>
+                      <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                        <span class="material-symbols-outlined mr-1">calendar_month</span>
+                        al
+                      </label>
+                      <input
+                        type="date"
+                        [value]="config().endDate"
+                        (input)="updateReporteState({ endDate: $any($event.target).value })"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out bg-gray-50 placeholder-gray-400"
+                      />
+                    </div>
+
+                    <div>
+                      <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                        <span class="material-symbols-outlined mr-1">person_celebrate</span>
+                        Nombre del responsable directo
+                      </label>
+                      <input
+                        type="text"
+                        [value]="config().nombreResponsableDirecto"
+                        (input)="
+                          updateReporteState({
+                            nombreResponsableDirecto: $any($event.target).value,
+                          })
+                        "
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out bg-gray-50 placeholder-gray-400"
+                        placeholder="Pancracia Hernandez"
+                      />
+                    </div>
+                    <div>
+                      <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                        <span class="material-symbols-outlined mr-1">orders</span>
+                        Cargo del responsable directo
+                      </label>
+                      <input
+                        type="text"
+                        [value]="config().cargoResponsableDirecto"
+                        (input)="
+                          updateReporteState({ cargoResponsableDirecto: $any($event.target).value })
+                        "
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out bg-gray-50 placeholder-gray-400"
+                        placeholder="Director"
+                      />
+                    </div>
+
+                    <div>
+                      <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                        <span class="material-symbols-outlined mr-1">calendar_month</span>
+                        Fecha de entrega del reporte
+                      </label>
+                      <input
+                        type="date"
+                        [value]="config().reportDateMonth"
+                        (input)="updateReporteState({ reportDateMonth: $any($event.target).value })"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out bg-gray-50 placeholder-gray-400"
+                      />
+                    </div>
+                    <!-- Firma escaneada -->
+                    <div>
+                      <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                        <span class="material-symbols-outlined mr-1">image</span>
+                        Firma Escaneada (Opcional)
+                      </label>
+                      <input
+                        type="file"
+                        (change)="onSignatureSelected($event)"
+                        accept="image/png, image/jpeg"
+                        class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                      />
+                    </div>
+                  </div>
+                </div>
+              }
+              @case (2) {
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                  <!-- Título -->
+                  <div class="flex items-center mb-6">
+                    <span class="material-symbols-outlined text-blue-500 mr-3">schedule</span>
+                    <h2 class="text-2xl font-bold text-gray-800">Horarios de Servicio Social</h2>
+                  </div>
+
+                  <!-- Botones de aplicar -->
+                  <div class="mb-4">
+                    <div class="flex items-center justify-between mb-4">
+                      <span class="text-sm text-gray-600">Configurar horarios para cada día</span>
+                      <div class="flex gap-2">
+                        <button
+                          (click)="applyToAllDays('entrada')"
+                          class="px-3 py-1 text-xs bg-blue-100 text-blue-600 rounded-md hover:bg-blue-200 transition-colors"
+                        >
+                          Aplicar hora entrada a todos
+                        </button>
+                        <button
+                          (click)="applyToAllDays('salida')"
+                          class="px-3 py-1 text-xs bg-green-100 text-green-600 rounded-md hover:bg-green-200 transition-colors"
+                        >
+                          Aplicar hora salida a todos
+                        </button>
+                      </div>
+                    </div>
+
+                    <!-- Lista de días -->
+                    <div class="space-y-4">
+                      @for (day of days; track day; let i = $index) {
+                        <div
+                          class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center p-4 bg-gray-50 rounded-lg"
+                        >
+                          <div class="font-medium text-gray-700">{{ day.label }}</div>
+
+                          <div>
+                            <label class="block text-sm text-gray-600 mb-1">Hora Entrada</label>
+                            <input
+                              type="time"
+                              [(ngModel)]="horariosServicio[i].entrada"
+                              (input)="
+                                handleTimeChange(day.key, 'entrada', $any($event.target).value)
+                              "
+                              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                            />
+                          </div>
+
+                          <div>
+                            <label class="block text-sm text-gray-600 mb-1">Hora Salida</label>
+                            <input
+                              type="time"
+                              [(ngModel)]="horariosServicio[i].salida"
+                              (input)="
+                                handleTimeChange(day.key, 'salida', $any($event.target).value)
+                              "
+                              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                            />
+                          </div>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                </div>
+              }
+              @case (3) {
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                  <!-- Header -->
+                  <div class="flex items-center mb-6">
+                    <span class="material-symbols-outlined text-blue-500 mr-3">calendar_month</span>
+                    <h2 class="text-2xl font-bold text-gray-800">Fechas Especiales</h2>
+                  </div>
+
+                  <!-- CSV Upload -->
+                  <div class="mb-6">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-3">
+                      <span class="material-symbols-outlined align-middle mr-2">upload_file</span>
+                      Subir archivo CSV con fechas especiales
+                    </h3>
+                    <div
+                      class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors"
+                    >
+                      <input
+                        type="file"
+                        accept=".csv"
+                        (change)="onFileSelected($event)"
+                        class="hidden"
+                        id="csv-upload"
+                      />
+                      <label for="csv-upload" class="cursor-pointer flex flex-col items-center">
+                        <span class="material-symbols-outlined text-gray-400 text-5xl mb-3"
+                          >description</span
+                        >
+                        <span class="text-gray-600 mb-2">Seleccionar archivo CSV</span>
+                        <span class="text-sm text-gray-500">
+                          Formato requerido: fecha, descripción (separado por comas)</span
+                        >
+                      </label>
+                    </div>
+
+                    @if (fechasEspeciales.length > 0) {
+                      <div class="bg-white p-3 rounded border mt-4">
+                        <h4 class="font-medium text-gray-700 mb-2">
+                          Fechas especiales cargadas ({{ fechasEspeciales.length }}):
+                        </h4>
+                        <div
+                          class="text-sm text-gray-600 whitespace-pre-wrap max-h-32 overflow-y-auto"
+                        >
+                          @for (fecha of fechasEspeciales; track fecha.fecha) {
+                            <div class="flex justify-between items-center text-xs">
+                              <span>{{ formatearFechaEspanol(fecha.fecha) }}</span>
+                              <span class="bg-yellow-100 px-2 py-1 rounded">{{
+                                fecha.tipoFecha
+                              }}</span>
+                            </div>
+                          }
+                        </div>
+                      </div>
+                    }
+                  </div>
+
+                  <!--               Manual Date Addition -->
+                  <div class="mb-6">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-3">
+                      <span class="material-symbols-outlined align-middle mr-2">add</span>
+                      Agregar fecha especial manualmente
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <!-- Fecha -->
+                      <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Fecha</label>
+                        <input
+                          type="date"
+                          [(ngModel)]="newDate().fecha"
+                          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                        />
+                      </div>
+
+                      <!-- Descripción -->
+                      <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2"
+                          >Descripción</label
+                        >
+                        <input
+                          type="text"
+                          [(ngModel)]="newDate().tipoFecha"
+                          placeholder="Día festivo, vacaciones, etc."
+                          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                        />
+                      </div>
+
+                      <!-- Botón -->
+                      <div class="flex items-end">
+                        <button
+                          (click)="addSpecialDate()"
+                          class="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center"
+                        >
+                          <span class="material-symbols-outlined text-sm mr-2">add</span>
+                          Agregar
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!--              Lista de Fechas Especiales-->
+                  @if (fechasEspeciales.length > 0) {
+                    <div>
+                      <h3 class="text-lg font-semibold text-gray-700 mb-3">
+                        Fechas especiales configuradas ({{ fechasEspeciales.length }})
+                      </h3>
+                      <div class="space-y-2 max-h-64 overflow-y-auto">
+                        @for (specialDate of fechasEspeciales; track $index) {
+                          <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div>
+                              <span class="font-medium text-gray-700">
+                                {{ formatearFechaEspanol(specialDate.fecha) }}
+                              </span>
+                              <span class="text-gray-600 ml-3">{{ specialDate.tipoFecha }}</span>
+                            </div>
+                            <button
+                              (click)="removeSpecialDate($index)"
+                              class="p-2 text-red-500 hover:bg-red-100 rounded-lg transition-colors"
+                            >
+                              <span class="material-symbols-outlined text-sm">delete</span>
+                            </button>
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+              @case (4) {
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                  <!-- Header -->
+                  <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center">
+                      <span class="material-symbols-outlined text-blue-500 mr-3">description</span>
+                      <h2 class="text-2xl font-bold text-gray-800">Vista Previa de Reportes</h2>
+                    </div>
+                    <div class="text-sm text-gray-600">Máximo 7 reportes por generación</div>
+                  </div>
+
+                  <!--               No reports-->
+                  @if (reports().length === 0) {
+                    <div class="text-center py-12">
+                      <span class="material-symbols-outlined text-gray-400 mx-auto mb-4 text-6xl"
+                        >calendar_month</span
+                      >
+                      <p class="text-gray-600">
+                        Configure las fechas del período para generar reportes
+                      </p>
+                    </div>
+                  } @else {
+                    <!-- Reports generated -->
+                    <div>
+                      <!-- Bulk actions -->
+                      <div class="flex items-center justify-between mb-6 p-4 bg-gray-50 rounded-lg">
+                        <div class="flex items-center gap-4">
+                          <div class="text-gray-700">
+                            {{ selectedReports().size }} de {{ reports().length }} reportes
+                            seleccionados
+                          </div>
+                          <div class="flex gap-2">
+                            <button
+                              (click)="selectAllReports()"
+                              class="px-3 py-1 text-sm bg-blue-100 text-blue-600 rounded-md hover:bg-blue-200 transition-colors"
+                            >
+                              Seleccionar todos
+                            </button>
+                            <button
+                              (click)="deselectAllReports()"
+                              class="px-3 py-1 text-sm bg-gray-100 text-gray-600 rounded-md hover:bg-gray-200 transition-colors"
+                            >
+                              Deseleccionar todos
+                            </button>
+                          </div>
+                        </div>
+
+                        <button
+                          (click)="downloadSelectedReports()"
+                          [disabled]="selectedReports().size === 0 || isGenerating()"
+                          class="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center"
+                        >
+                          @if (isGenerating()) {
+                            <span class="material-symbols-outlined mr-2 animate-spin"
+                              >progress_activity</span
+                            >
+                            Generando ZIP...
+                          } @else {
+                            <span class="material-symbols-outlined mr-2">download</span>
+                            Descargar PDF en ZIP
+                          }
+                        </button>
+                      </div>
+
+                      <!-- Reports grid -->
+                      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        @for (report of reports(); track report) {
+                          <div
+                            (click)="toggleReportSelection(report.id)"
+                            class="border-2 rounded-lg p-4 transition-all cursor-pointer"
+                            [ngClass]="
+                              selectedReports().has(report.id)
+                                ? 'border-blue-500 bg-blue-50'
+                                : 'border-gray-200 bg-white hover:border-gray-300'
+                            "
+                          >
+                            <div class="flex items-start justify-between mb-3">
+                              <div class="flex items-center">
+                                <input
+                                  type="checkbox"
+                                  [checked]="selectedReports().has(report.id)"
+                                  (click)="$event.stopPropagation()"
+                                  (change)="toggleReportSelection(report.id)"
+                                  class="mr-3 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                />
+                                <div>
+                                  <h3 class="font-semibold text-gray-800">
+                                    Semana {{ report.period.weekNumber }}
+                                  </h3>
+                                  <p class="text-sm text-gray-600">
+                                    {{ report.period.startDate }} al {{ report.period.endDate }}
+                                  </p>
+                                </div>
+                              </div>
+                              <button
+                                (click)="previewReport(report); $event.stopPropagation()"
+                                class="p-2 text-gray-500 hover:text-blue-500 hover:bg-blue-100 rounded-lg transition-colors"
+                              >
+                                <span class="material-symbols-outlined text-sm">visibility</span>
+                              </button>
+                            </div>
+
+                            <div class="space-y-2 text-sm">
+                              <div class="flex justify-between">
+                                <span class="text-gray-600">Prestador:</span>
+                                <span class="font-medium">{{ report.student.name }}</span>
+                              </div>
+                              <div class="flex justify-between">
+                                <span class="text-gray-600">Carrera:</span>
+                                <span class="font-medium truncate ml-2">{{
+                                  report.student.career
+                                }}</span>
+                              </div>
+                              <div class="flex justify-between">
+                                <span class="text-gray-600">Días especiales:</span>
+                                <span class="font-medium">{{ report.specialDates.length }}</span>
+                              </div>
+                            </div>
+                          </div>
+                        }
+                      </div>
+
+                      <!-- Summary -->
+                      <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+                        <h3 class="font-semibold text-blue-800 mb-2">Resumen de Generación</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                          <div>
+                            <span class="text-blue-600">Total de reportes:</span>
+                            <span class="font-medium ml-2">{{ reports().length }}</span>
+                          </div>
+                          <div>
+                            <span class="text-blue-600">Período completo:</span>
+                            <span class="font-medium ml-2">
+                              {{ formatearFechaEspanol(config().startDate) }} al
+                              {{ formatearFechaEspanol(config().endDate) }}</span
+                            >
+                          </div>
+                          <div>
+                            <span class="text-blue-600">Fechas especiales:</span>
+                            <span class="font-medium ml-2">{{ fechasEspeciales.length }}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- PDF Preview de todos los reportes generados -->
+                      <div class="mt-10">
+                        <div class="flex items-center justify-between mb-6">
+                          <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                            <span class="material-symbols-outlined text-blue-500 mr-2"
+                              >visibility</span
+                            >
+                            Vista Previa de Reportes PDF
+                          </h3>
+                          <div class="flex items-center gap-2">
+                            @if (config().signatureImage) {
+                              <button
+                                (click)="removeSignature()"
+                                class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center"
+                              >
+                                <span class="material-symbols-outlined mr-2">delete</span>
+                                Eliminar firma
+                              </button>
+                            }
+                            <button
+                              (click)="generateAllReportsPdf()"
+                              [disabled]="isGenerating()"
+                              class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-300 transition-colors flex items-center"
+                            >
+                              @if (isGenerating()) {
+                                <span class="material-symbols-outlined mr-2 animate-spin"
+                                  >progress_activity</span
+                                >
+                                Generando...
+                              } @else {
+                                <span class="material-symbols-outlined mr-2">refresh</span>
+                                Generar Todos
+                              }
+                            </button>
+                          </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-6">
+                          @for (report of reports(); track report.id) {
+                            <div class="bg-gray-50 rounded-lg shadow border p-4">
+                              <div class="mb-4 text-center">
+                                <div class="flex items-center justify-between mb-2">
+                                  <span class="font-semibold text-blue-700"
+                                    >Reporte #{{ report.period.weekNumber }}</span
+                                  >
+                                  <button
+                                    (click)="generateSingleReportPdf(report)"
+                                    class="px-3 py-1 text-xs bg-blue-100 text-blue-600 rounded hover:bg-blue-200 transition-colors"
+                                  >
+                                    Actualizar
+                                  </button>
+                                </div>
+                                <div class="text-xs text-gray-500 mb-2">
+                                  {{ report.period.startDate }} al {{ report.period.endDate }}
+                                </div>
+                                <div class="text-xs text-gray-600">
+                                  {{ report.asistencia.length }} días •
+                                  {{ report.specialDates.length }}
+                                  especiales
+                                </div>
+                              </div>
+
+                              @if (report.pdfUrl) {
+                                <iframe
+                                  [src]="report.pdfUrl"
+                                  class="w-full h-[1000px] border rounded bg-white"
+                                  title="Vista previa Reporte {{ report.period.weekNumber }}"
+                                ></iframe>
+                              } @else {
+                                <div
+                                  class="w-full h-80 border rounded bg-white flex items-center justify-center"
+                                >
+                                  <div class="text-center text-gray-500">
+                                    <span class="material-symbols-outlined text-4xl mb-2 block"
+                                      >description</span
+                                    >
+                                    <p class="text-sm">
+                                      Click "Generar Todos" para ver la vista previa
+                                    </p>
+                                  </div>
+                                </div>
+                              }
+                            </div>
+                          }
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+            }
+
+            <!-- Navigation -->
+            <div class="flex items-center justify-between mt-8">
+              <button
+                (click)="prevStep()"
+                [disabled]="currentStep() === 1"
+                class="px-6 py-3 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 disabled:bg-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors flex items-center"
+              >
+                Anterior
+              </button>
+
+              <div class="text-center">
+                <span class="text-sm text-gray-600">
+                  Paso {{ currentStep() }} de {{ totalSteps }}
+                </span>
+              </div>
+
+              <button
+                (click)="nextStep()"
+                [disabled]="!canProceed()"
+                class="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center"
+              >
+                {{ currentStep() === totalSteps ? 'Finalizar' : 'Siguiente' }}
+              </button>
+            </div>
+
+            <!-- Help Text -->
+            <div class="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <div class="flex items-start justify-between">
+                <div class="flex items-start">
+                  <div class="text-yellow-600 mr-3">💡</div>
+                  <div class="text-sm text-yellow-800">
+                    <strong>Ayuda:</strong>
+                    {{ helpText() }}
+                  </div>
+                </div>
+                <button
+                  (click)="clearSavedData()"
+                  class="px-3 py-1 text-xs bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors"
+                  title="Limpiar todos los datos guardados"
+                >
+                  Limpiar datos
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

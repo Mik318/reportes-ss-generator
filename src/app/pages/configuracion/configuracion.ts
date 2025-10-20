@@ -6,7 +6,7 @@ import moment from 'moment';
 import 'moment/locale/es';
 import {NgClass, registerLocaleData} from '@angular/common';
 import localeEs from '@angular/common/locales/es';
-import {StepIndicator} from './step-indicator/step-indicator';
+import {StepIndicator} from '../../shared/components/step-indicator/step-indicator';
 import JSZip from 'jszip';
 
 // Registrar el locale español
