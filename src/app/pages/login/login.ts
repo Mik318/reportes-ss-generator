@@ -95,7 +95,6 @@ export class Login {
       this.autenticacionService.getTokenAuthGetTokenPost(loginRequest).subscribe(
         {
           next: (response: AuthTokenResponse) => {
-            console.log(response);
             try {
               if (typeof window !== 'undefined' && response?.access_token) {
                 localStorage.setItem('jwt', response.access_token);

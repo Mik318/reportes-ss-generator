@@ -162,13 +162,15 @@ components:
       description: Modelo para el login (email y password)
     ReportRequest:
       properties:
-        prompt:
-          type: string
-          title: Prompt
-          description: Texto para generar el reporte
+        actividades:
+          items:
+            type: string
+          type: array
+          title: Actividades
+          description: Lista de actividades realizadas
       type: object
       required:
-      - prompt
+      - actividades
       title: ReportRequest
       description: Solicitud para generar un reporte.
     ReportResponse:
@@ -176,7 +178,7 @@ components:
         report:
           type: string
           title: Report
-          description: Contenido del reporte generado
+          description: Reporte generado
       type: object
       required:
       - report

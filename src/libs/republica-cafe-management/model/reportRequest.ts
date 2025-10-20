@@ -14,9 +14,9 @@
  */
 export interface ReportRequest { 
     /**
-     * Texto para generar el reporte
+     * Lista de actividades realizadas
      */
-    prompt: string;
+    actividades: Array<string>;
 }
 
 

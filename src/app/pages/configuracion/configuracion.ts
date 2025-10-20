@@ -8,6 +8,7 @@ import {NgClass, registerLocaleData} from '@angular/common';
 import localeEs from '@angular/common/locales/es';
 import {StepIndicator} from '../../shared/components/step-indicator/step-indicator';
 import JSZip from 'jszip';
+import {ReportRequest, ReportsService} from '../../../libs/republica-cafe-management';
 
 // Registrar el locale español
 registerLocaleData(localeEs);
@@ -125,11 +126,21 @@ export class Configuracion {
   selectedReportsMonth = signal<Set<string>>(new Set());
   isGenerating = signal(false);
 
-  constructor(private sanitizer: DomSanitizer) {
+  // Señales para controlar la UI del autocompletar con IA por reporte
+  iaEditorOpen = signal<Record<string, boolean>>({});
+  iaActivities = signal<Record<string, string[]>>({});
+
+  constructor(
+    private sanitizer: DomSanitizer,
+    private _reportsService: ReportsService
+    ) {
     // Cargar datos guardados de todos los pasos al inicializar
     this.loadStep1FromLocalStorage();
     this.loadStep2FromLocalStorage();
     this.loadStep3FromLocalStorage();
+    // Cargar paso 4 y 5 si existen
+    this.loadStep4FromLocalStorage();
+    this.loadStep5FromLocalStorage();
   }
 
   // --- Validaciones y navegación ---
@@ -442,6 +453,8 @@ export class Configuracion {
     });
     this.reports.set(reportes);
     this.selectedReports.set(new Set());
+    // Persistir paso 4
+    try { this.saveStep4ToLocalStorage(); } catch (e) { /* ignore */ }
   }
 
   // --- Métodos para selección y descarga ---
@@ -1096,6 +1109,82 @@ export class Configuracion {
     }
   }
 
+
+  private loadStep4FromLocalStorage() {
+    try {
+      const savedData = localStorage.getItem('reportes-ss-step4');
+      if (savedData) {
+        const parsedData = JSON.parse(savedData);
+        if (parsedData.reports && Array.isArray(parsedData.reports)) {
+          this.reports.set(parsedData.reports);
+        }
+        if (parsedData.selectedReports && Array.isArray(parsedData.selectedReports)) {
+          this.selectedReports.set(new Set(parsedData.selectedReports));
+        }
+      }
+    } catch (error) {
+      console.warn('Error cargando datos del paso 4 de localStorage:', error);
+    }
+  }
+
+  // Paso 5: Reportes mensuales
+  private saveStep5ToLocalStorage() {
+    const step5Data = {
+      selectedReportsMonth: Array.from(this.selectedReportsMonth()),
+      reportActivities: this.reports().map(report => ({
+        id: report.id,
+        resumeActivities: report.resumeActivities
+      })),
+      // Guardar estado y actividades creadas con IA
+      iaActivities: this.iaActivities(),
+      iaEditorOpen: this.iaEditorOpen()
+    };
+
+    try {
+      localStorage.setItem('reportes-ss-step5', JSON.stringify(step5Data));
+    } catch (error) {
+      console.warn('Error guardando datos del paso 5 en localStorage:', error);
+    }
+  }
+
+  private loadStep5FromLocalStorage() {
+    try {
+      const savedData = localStorage.getItem('reportes-ss-step5');
+      if (savedData) {
+        const parsedData = JSON.parse(savedData);
+        if (parsedData.selectedReportsMonth && Array.isArray(parsedData.selectedReportsMonth)) {
+          this.selectedReportsMonth.set(new Set(parsedData.selectedReportsMonth));
+        }
+        if (parsedData.reportActivities && Array.isArray(parsedData.reportActivities)) {
+          const currentReports = this.reports();
+          const updatedReports = currentReports.map(report => {
+            const savedActivity = parsedData.reportActivities.find((activity: any) => activity.id === report.id);
+            return savedActivity ? { ...report, resumeActivities: savedActivity.resumeActivities } : report;
+          });
+          this.reports.set(updatedReports);
+        }
+
+        // Restaurar actividades y estado del editor IA si existen
+        if (parsedData.iaActivities && typeof parsedData.iaActivities === 'object') {
+          try {
+            this.iaActivities.set(parsedData.iaActivities);
+          } catch (e) {
+            // ignore malformed data
+          }
+        }
+        if (parsedData.iaEditorOpen && typeof parsedData.iaEditorOpen === 'object') {
+          try {
+            this.iaEditorOpen.set(parsedData.iaEditorOpen);
+          } catch (e) {
+            // ignore malformed data
+          }
+        }
+      }
+    } catch (error) {
+      console.warn('Error cargando datos del paso 5 de localStorage:', error);
+    }
+  }
+
   // --- Nuevo método para guardar datos del paso actual ---
   private saveCurrentStepData() {
     switch (this.currentStep()) {
@@ -1125,61 +1214,6 @@ export class Configuracion {
     }
   }
 
-  private loadStep4FromLocalStorage() {
-    try {
-      const savedData = localStorage.getItem('reportes-ss-step4');
-      if (savedData) {
-        const parsedData = JSON.parse(savedData);
-        if (parsedData.reports && Array.isArray(parsedData.reports)) {
-          this.reports.set(parsedData.reports);
-        }
-        if (parsedData.selectedReports && Array.isArray(parsedData.selectedReports)) {
-          this.selectedReports.set(new Set(parsedData.selectedReports));
-        }
-      }
-    } catch (error) {
-      console.warn('Error cargando datos del paso 4 de localStorage:', error);
-    }
-  }
-
-  private saveStep5ToLocalStorage() {
-    const step5Data = {
-      selectedReportsMonth: Array.from(this.selectedReportsMonth()),
-      reportActivities: this.reports().map(report => ({
-        id: report.id,
-        resumeActivities: report.resumeActivities
-      }))
-    };
-
-    try {
-      localStorage.setItem('reportes-ss-step5', JSON.stringify(step5Data));
-    } catch (error) {
-      console.warn('Error guardando datos del paso 5 en localStorage:', error);
-    }
-  }
-
-  private loadStep5FromLocalStorage() {
-    try {
-      const savedData = localStorage.getItem('reportes-ss-step5');
-      if (savedData) {
-        const parsedData = JSON.parse(savedData);
-        if (parsedData.selectedReportsMonth && Array.isArray(parsedData.selectedReportsMonth)) {
-          this.selectedReportsMonth.set(new Set(parsedData.selectedReportsMonth));
-        }
-        if (parsedData.reportActivities && Array.isArray(parsedData.reportActivities)) {
-          const currentReports = this.reports();
-          const updatedReports = currentReports.map(report => {
-            const savedActivity = parsedData.reportActivities.find((activity: any) => activity.id === report.id);
-            return savedActivity ? { ...report, resumeActivities: savedActivity.resumeActivities } : report;
-          });
-          this.reports.set(updatedReports);
-        }
-      }
-    } catch (error) {
-      console.warn('Error cargando datos del paso 5 de localStorage:', error);
-    }
-  }
-
   // Método público para limpiar datos guardados si es necesario
   clearSavedData() {
     try {
@@ -1205,13 +1239,116 @@ export class Configuracion {
     }
   }
 
-  // --- Utilidades ---
   campoExiste(form: any, nombreCampo: string): boolean {
     try {
       form.getField(nombreCampo);
       return true;
     } catch {
       return false;
+    }
+  }
+
+  autocompletarResumenIA(reportId: string){
+    // Abrir el editor IA para el reporte y inicializar la lista de actividades
+    try {
+      const openState = {...this.iaEditorOpen()};
+      openState[reportId] = true;
+      this.iaEditorOpen.set(openState);
+
+      const activitiesState = {...this.iaActivities()};
+      // Si ya tenemos actividades cargadas, no sobreescribir; sino inicializar con una línea vacía
+      if (!activitiesState[reportId] || activitiesState[reportId].length === 0) {
+        // Si ya existe resumeActivities en el reporte, usarlo para inicializar
+        const rpt = this.reports().find(r => r.id === reportId);
+        if (rpt && rpt.resumeActivities && rpt.resumeActivities.trim()) {
+          activitiesState[reportId] = rpt.resumeActivities.split('\n').map(s => s.trim()).filter(s => s.length > 0);
+        } else {
+          activitiesState[reportId] = [''];
+        }
+        this.iaActivities.set(activitiesState);
+      }
+
+      // Persistir inmediatamente que se abrió el editor IA y las actividades iniciales
+      try { this.saveStep5ToLocalStorage(); } catch (e) { /* ignore */ }
+    } catch (e) {
+      console.error('Error abriendo editor IA:', e);
+    }
+  }
+
+  addActivity(reportId: string) {
+    const activitiesState = {...this.iaActivities()};
+    const list = activitiesState[reportId] ? [...activitiesState[reportId]] : [];
+    list.push('');
+    activitiesState[reportId] = list;
+    this.iaActivities.set(activitiesState);
+    // Persistir cambio
+    try { this.saveStep5ToLocalStorage(); } catch (e) { /* ignore */ }
+  }
+
+  removeActivity(reportId: string, index: number) {
+    const activitiesState = {...this.iaActivities()};
+    const list = activitiesState[reportId] ? [...activitiesState[reportId]] : [];
+    if (index >= 0 && index < list.length) {
+      list.splice(index, 1);
+      activitiesState[reportId] = list;
+      this.iaActivities.set(activitiesState);
+      // Persistir cambio
+      try { this.saveStep5ToLocalStorage(); } catch (e) { /* ignore */ }
+    }
+  }
+
+  updateActivity(reportId: string, index: number, value: string) {
+    const activitiesState = {...this.iaActivities()};
+    const list = activitiesState[reportId] ? [...activitiesState[reportId]] : [];
+    if (index >= 0) {
+      list[index] = value;
+      activitiesState[reportId] = list;
+      this.iaActivities.set(activitiesState);
+      // Persistir cambio
+      try { this.saveStep5ToLocalStorage(); } catch (e) { /* ignore */ }
+    }
+  }
+
+  applyActivities(reportId: string) {
+    try {
+      const activities = this.iaActivities()[reportId] || [];
+      console.warn('Activities:', activities);
+      const reportRequest: ReportRequest = {
+        actividades: activities ?? []
+      }
+      this._reportsService.crearReporteReportsPost(reportRequest).subscribe({
+        next: (response) => {
+          console.warn(response)
+          const updated = this.reports().map(r => {
+            if (r.id === reportId) {
+              return {...r, resumeActivities: response.report};
+            }
+            return r;
+          });
+          this.reports.set(updated);
+        }
+      })
+
+
+      // Persistir el cambio del paso 5
+      try { this.saveStep5ToLocalStorage(); } catch (e) { /* ignore */ }
+
+      // Cerrar editor
+      const openState = {...this.iaEditorOpen()};
+      openState[reportId] = false;
+      this.iaEditorOpen.set(openState);
+    } catch (e) {
+      console.error('Error aplicando actividades:', e);
+    }
+  }
+
+  cancelIAEditor(reportId: string) {
+    try {
+      const openState = {...this.iaEditorOpen()};
+      openState[reportId] = false;
+      this.iaEditorOpen.set(openState);
+    } catch (e) {
+      console.error('Error cerrando editor IA:', e);
     }
   }
 

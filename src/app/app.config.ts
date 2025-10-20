@@ -14,6 +14,7 @@ export const appConfig: ApplicationConfig = {
     provideClientHydration(withEventReplay()),
     provideHttpClient(withFetch()),
     provideApi({
+      // basePath: 'https://reportes-api.onrender.com',
       basePath: 'http://127.0.0.1:8000',
       credentials: {
         bearerAuth: () => {

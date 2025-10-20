@@ -567,13 +567,55 @@
                           bg-white placeholder-gray-400"
                           placeholder="Describe brevemente las actividades realizadas en este periodo deberás redactarlas en primera persona y en pasado...."
                         ></textarea>
-                        <!--                        <button-->
-                        <!--                          (click)="autocompletarResumenIA(report)"-->
-                        <!--                          class="mt-2 px-3 py-1 text-xs bg-blue-100 text-blue-600 rounded hover:bg-blue-200 transition-colors"-->
-                        <!--                          type="button"-->
-                        <!--                        >-->
-                        <!--                          Autocompletar con IA-->
-                        <!--                        </button>-->
+                        <button
+                          (click)="autocompletarResumenIA(report.id)"
+                          class="mt-2 px-3 py-1 text-xs bg-blue-100 text-blue-600 rounded hover:bg-blue-200 transition-colors"
+                          type="button"
+                        >
+                          Autocompletar con IA
+                        </button>
+
+                        <!-- Editor IA: label y lista dinámica de actividades -->
+                        @if (iaEditorOpen()[report.id]) {
+                          <div class="mt-4 p-3 bg-white border rounded">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                              Las actividades se describirán brevemente en este periodo en primera persona y en pasado.
+                            </label>
+
+                            <div class="space-y-2">
+                              @for (actividad of iaActivities()[report.id]; track i; let i = $index) {
+                                <div class="flex items-start gap-2">
+                                  <input
+                                    [ngModel]="actividad"
+                                    (ngModelChange)="updateActivity(report.id, i, $event)"
+                                    class="flex-1 px-3 py-2 border rounded bg-white"
+                                    placeholder="Escribe una actividad en primera persona y en pasado..."
+                                    type="text"
+                                  />
+
+                                  <button type="button" (click)="addActivity(report.id)" title="Agregar actividad"
+                                          class="px-2 py-1 text-xs bg-green-100 text-green-600 rounded hover:bg-green-200">
+                                    +
+                                  </button>
+                                  <button type="button" (click)="removeActivity(report.id, i)"
+                                          title="Eliminar actividad"
+                                          class="px-2 py-1 text-xs bg-red-100 text-red-600 rounded hover:bg-red-200"
+                                          [disabled]="(iaActivities()[report.id] || []).length <= 1">-
+                                  </button>
+                                </div>
+                              }
+                            </div>
+
+                            <div class="mt-3 flex gap-2">
+                              <button type="button" (click)="applyActivities(report.id)"
+                                      class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">Aplicar
+                              </button>
+                              <button type="button" (click)="cancelIAEditor(report.id)"
+                                      class="px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200">Cancelar
+                              </button>
+                            </div>
+                          </div>
+                        }
                       </div>
                     }
                   </div>

@@ -14,7 +14,7 @@
  */
 export interface ReportResponse { 
     /**
-     * Contenido del reporte generado
+     * Reporte generado
      */
     report: string;
 }
