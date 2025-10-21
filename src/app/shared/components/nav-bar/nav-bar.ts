@@ -12,9 +12,13 @@ import {Auth} from '../../services/auth';
 })
 export class NavBar {
   isLoggedIn!: () => boolean;
+  isReady!: () => boolean;
+  isGuest!: () => boolean;
 
   constructor(private router: Router, private auth: Auth) {
     this.isLoggedIn = this.auth.isLoggedIn;
+    this.isReady = this.auth.isReady;
+    this.isGuest = this.auth.isGuest;
   }
 
   logout() {

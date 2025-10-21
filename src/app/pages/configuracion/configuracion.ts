@@ -7,6 +7,7 @@ import 'moment/locale/es';
 import {NgClass, registerLocaleData} from '@angular/common';
 import localeEs from '@angular/common/locales/es';
 import {StepIndicator} from '../../shared/components/step-indicator/step-indicator';
+import { Auth } from '../../shared/services/auth';
 import JSZip from 'jszip';
 import {ReportRequest, ReportsService} from '../../../libs/republica-cafe-management';
 
@@ -133,7 +134,8 @@ export class Configuracion {
 
   constructor(
     private sanitizer: DomSanitizer,
-    private _reportsService: ReportsService
+    private _reportsService: ReportsService,
+    private auth: Auth
   ) {
     // Cargar datos guardados de todos los pasos al inicializar
     this.loadStep1FromLocalStorage();
@@ -1253,8 +1255,14 @@ export class Configuracion {
   }
 
   autocompletarResumenIA(reportId: string) {
-    // Abrir el editor IA para el reporte y inicializar la lista de actividades
+    // Bloquear la función IA para usuarios guest
     try {
+      if (this.auth.isGuestValue) {
+        alert('Para usar las funciones de IA debes iniciar sesión.');
+        return;
+      }
+
+      // Abrir el editor IA para el reporte y inicializar la lista de actividades
       const openState = {...this.iaEditorOpen()};
       openState[reportId] = true;
       this.iaEditorOpen.set(openState);

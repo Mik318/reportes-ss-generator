@@ -82,6 +82,38 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+  /auth/refresh-token:
+    post:
+      tags:
+      - Autenticacion
+      summary: Refresh Token
+      description: 'Renueva tokens a partir de un refresh_token proporcionado por
+        el cliente.
+
+
+        Seguridad: este endpoint acepta el refresh_token en el body JSON. En producción
+
+        puedes preferir enviar refresh tokens en cookies HttpOnly para mayor seguridad.'
+      operationId: refresh_token_auth_refresh_token_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthTokenResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
   /auth/verify-token:
     get:
       tags:
@@ -130,11 +162,19 @@ components:
           title: Token Type
           description: Tipo de token de autenticación
           default: bearer
+        refresh_token:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Refresh Token
+          description: Refresh token (opcional)
       type: object
       required:
       - access_token
       title: AuthTokenResponse
-      description: Respuesta con el token de autenticación.
+      description: 'Respuesta con el token de autenticación.
+
+        Ahora incluye opcionalmente el refresh_token proporcionado por Supabase.'
     HTTPValidationError:
       properties:
         detail:
@@ -160,6 +200,17 @@ components:
       - password
       title: LoginRequest
       description: Modelo para el login (email y password)
+    RefreshRequest:
+      properties:
+        refresh_token:
+          type: string
+          title: Refresh Token
+          description: Refresh token proporcionado por Supabase
+      type: object
+      required:
+      - refresh_token
+      title: RefreshRequest
+      description: Petición para refrescar tokens a partir de refresh_token
     ReportRequest:
       properties:
         actividades:

@@ -14,6 +14,7 @@ import { Observable }                                        from 'rxjs';
 import { AuthTokenResponse } from '../model/models';
 import { HTTPValidationError } from '../model/models';
 import { LoginRequest } from '../model/models';
+import { RefreshRequest } from '../model/models';
 import { User } from '../model/models';
 
 
@@ -38,6 +39,13 @@ export interface AutenticacionServiceInterface {
      * @param loginRequest 
      */
     getTokenAuthGetTokenPost(loginRequest: LoginRequest, extraHttpRequestParams?: any): Observable<AuthTokenResponse>;
+
+    /**
+     * Refresh Token
+     * Renueva tokens a partir de un refresh_token proporcionado por el cliente.  Seguridad: este endpoint acepta el refresh_token en el body JSON. En producción puedes preferir enviar refresh tokens en cookies HttpOnly para mayor seguridad.
+     * @param refreshRequest 
+     */
+    refreshTokenAuthRefreshTokenPost(refreshRequest: RefreshRequest, extraHttpRequestParams?: any): Observable<AuthTokenResponse>;
 
     /**
      * Verify Token

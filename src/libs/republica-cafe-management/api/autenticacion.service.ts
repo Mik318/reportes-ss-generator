@@ -23,6 +23,8 @@ import { HTTPValidationError } from '../model/hTTPValidationError';
 // @ts-ignore
 import { LoginRequest } from '../model/loginRequest';
 // @ts-ignore
+import { RefreshRequest } from '../model/refreshRequest';
+// @ts-ignore
 import { User } from '../model/user';
 
 // @ts-ignore
@@ -163,6 +165,71 @@ export class AutenticacionService extends BaseService implements AutenticacionSe
             {
                 context: localVarHttpContext,
                 body: loginRequest,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                transferCache: localVarTransferCache,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Refresh Token
+     * Renueva tokens a partir de un refresh_token proporcionado por el cliente.  Seguridad: este endpoint acepta el refresh_token en el body JSON. En producción puedes preferir enviar refresh tokens en cookies HttpOnly para mayor seguridad.
+     * @param refreshRequest 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public refreshTokenAuthRefreshTokenPost(refreshRequest: RefreshRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<AuthTokenResponse>;
+    public refreshTokenAuthRefreshTokenPost(refreshRequest: RefreshRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<AuthTokenResponse>>;
+    public refreshTokenAuthRefreshTokenPost(refreshRequest: RefreshRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<AuthTokenResponse>>;
+    public refreshTokenAuthRefreshTokenPost(refreshRequest: RefreshRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (refreshRequest === null || refreshRequest === undefined) {
+            throw new Error('Required parameter refreshRequest was null or undefined when calling refreshTokenAuthRefreshTokenPost.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/auth/refresh-token`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<AuthTokenResponse>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: refreshRequest,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

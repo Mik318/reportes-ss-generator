@@ -10,7 +10,7 @@
 
 
 /**
- * Respuesta con el token de autenticación.
+ * Respuesta con el token de autenticación. Ahora incluye opcionalmente el refresh_token proporcionado por Supabase.
  */
 export interface AuthTokenResponse { 
     /**
@@ -21,6 +21,7 @@ export interface AuthTokenResponse {
      * Tipo de token de autenticación
      */
     token_type?: string;
+    refresh_token?: string | null;
 }
 
 

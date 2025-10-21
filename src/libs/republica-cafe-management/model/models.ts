@@ -1,6 +1,7 @@
 export * from './authTokenResponse';
 export * from './hTTPValidationError';
 export * from './loginRequest';
+export * from './refreshRequest';
 export * from './reportRequest';
 export * from './reportResponse';
 export * from './user';

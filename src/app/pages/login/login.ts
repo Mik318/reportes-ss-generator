@@ -3,6 +3,7 @@ import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/
 import {Auth} from '../../shared/services/auth';
 import {Router, RouterLink} from '@angular/router';
 import {AutenticacionService, AuthTokenResponse, LoginRequest} from '../../../libs/republica-cafe-management';
+import { TokenService } from '../../shared/services/token.service';
 
 @Component({
   selector: 'app-login',
@@ -35,7 +36,8 @@ export class Login {
 
   constructor(private auth: Auth,
               private router: Router,
-              private autenticacionService: AutenticacionService) {
+              private autenticacionService: AutenticacionService,
+              private tokenService: TokenService) {
     this.setLoggedIn.set(this.auth.isLoggedInValue)
   }
 
@@ -47,7 +49,10 @@ export class Login {
     if (result) {
       this.auth.setLoggedIn(true);
       this.router.navigate(['/home']);
+    } else {
+      this.error = 'Usuario o contraseña inválidos';
     }
+    this.isLoading = false;
   }
 
   async handleSignup() {
@@ -94,11 +99,15 @@ export class Login {
           next: (response: AuthTokenResponse) => {
             try {
               if (typeof window !== 'undefined' && response?.access_token) {
-                localStorage.setItem('jwt', response.access_token);
-                this.isLoading = false;
+                // Guardar access token en memoria
+                this.tokenService.set(response.access_token);
+                // Guardar refresh token (si el backend lo devuelve) en localStorage
+                if (response.refresh_token) {
+                  try { localStorage.setItem('refresh_token', response.refresh_token); } catch (e) {}
+                }
               }
             } catch (e) {
-              this.isLoading = false;
+              console.error('Error al procesar tokens:', e);
             }
             this.auth.setLoggedIn(true);
             resolve(true);
@@ -114,6 +123,8 @@ export class Login {
 
   continueWithoutLogin() {
     try {
+      // Marcar como guest para permitir navegar pero restringir funciones de IA
+      this.auth.setGuest(true);
       this.auth.setLoggedIn(true);
       this.router.navigate(['/home']);
     } catch (e) {
