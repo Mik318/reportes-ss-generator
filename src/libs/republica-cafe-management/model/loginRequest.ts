@@ -10,13 +10,17 @@
 
 
 /**
- * Solicitud para generar un reporte.
+ * Modelo para el login (email y password)
  */
-export interface ReportRequest { 
+export interface LoginRequest { 
     /**
-     * Lista de actividades realizadas
+     * Correo del usuario
      */
-    actividades: Array<string>;
+    email: string;
+    /**
+     * Contraseña del usuario
+     */
+    password: string;
 }
 
 

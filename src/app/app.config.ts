@@ -15,6 +15,7 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withFetch()),
     provideApi({
       basePath: 'https://reportes-api.onrender.com',
+      // basePath: 'http://127.0.0.1:8000',
       credentials: {
         bearerAuth: () => {
           return localStorage.getItem("jwt") ?? undefined;

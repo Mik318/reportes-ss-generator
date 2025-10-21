@@ -18,7 +18,6 @@ export class Home implements OnInit{
 
 
   ngOnInit() {
-    // console.warn('inicio')
     // this.autenticacionService.getTokenAuthGetTokenGet(
     //   'lokilskdij@gmail.com',
     //   'Passw0rd!'

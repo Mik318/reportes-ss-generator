@@ -1,0 +1,212 @@
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+  <div class="max-w-6xl w-full grid md:grid-cols-2 gap-8 items-center">
+
+    <!-- Branding -->
+    <div class="text-center md:text-left space-y-6">
+      <div class="flex items-center justify-center md:justify-start gap-3">
+        <div class="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
+          <span class="material-icons text-white">description</span>
+        </div>
+        <h1 class="text-2xl font-bold text-gray-900">Sistema de Reportes SS</h1>
+      </div>
+
+      <div class="space-y-4">
+        <h2 class="text-3xl md:text-4xl font-bold text-gray-900 leading-tight">
+          Genere reportes profesionales con
+          <span class="text-blue-600 block">Inteligencia Artificial</span>
+        </h2>
+        <p class="text-lg text-gray-600 leading-relaxed">
+          Optimice sus reportes de servicios sociales con herramientas avanzadas de IA.
+          Cree, gestione y analice reportes de manera eficiente y profesional.
+        </p>
+      </div>
+
+      <!-- Premium Features -->
+      <div class="space-y-3">
+        <h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+          <span class="material-icons text-blue-600">auto_awesome</span>
+          Funciones Premium con IA
+        </h3>
+        <div class="grid gap-2">
+          <div class="flex items-center gap-3 text-gray-600">
+            <div class="w-2 h-2 bg-blue-600 rounded-full"></div>
+            <span>Generación automática de contenido</span>
+          </div>
+          <div class="flex items-center gap-3 text-gray-600">
+            <div class="w-2 h-2 bg-blue-600 rounded-full"></div>
+            <span>Análisis inteligente de datos</span>
+          </div>
+          <div class="flex items-center gap-3 text-gray-600">
+            <div class="w-2 h-2 bg-blue-600 rounded-full"></div>
+            <span>Sugerencias de mejora automáticas</span>
+          </div>
+          <div class="flex items-center gap-3 text-gray-600">
+            <div class="w-2 h-2 bg-blue-600 rounded-full"></div>
+            <span>Plantillas personalizadas</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Auth Form -->
+    <div class="bg-white rounded-2xl shadow-xl p-8">
+      <div class="mb-8 text-center">
+        <h3 class="text-2xl font-bold text-gray-900 mb-2">
+          @if (isLogin) {
+            Iniciar Sesión
+          } @else {
+            Crear Cuenta
+          }
+        </h3>
+        <p class="text-gray-600">
+          @if (isLogin) {
+            Accede a todas las funciones premium
+          } @else {
+            Regístrate para desbloquear funciones de IA (Gratuitamente)
+          }
+        </p>
+      </div>
+
+      <!-- Success Signup -->
+      @if (!isLogin && success()) {
+        <div class="text-center space-y-4">
+          <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+            <span class="material-icons text-green-600 text-4xl">check_circle</span>
+          </div>
+          <h3 class="text-lg font-semibold text-gray-900">¡Cuenta creada exitosamente!</h3>
+          <p class="text-gray-600">Tu cuenta ha sido creada. Favor de verificar su correo.</p>
+          <button (click)="isLogin = false"
+                  [disabled]="isLoading"
+                  [routerLink]="['/login']"
+                  class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 transition-all duration-200">
+            Continuar al Login
+          </button>
+        </div>
+      }
+
+      <!-- Login / Signup Forms -->
+      @if (isLogin && !success()) {
+        <form [formGroup]="loginForm" (ngSubmit)="handleLogin()" class="space-y-6">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Correo electrónico</label>
+            <div class="relative">
+              <span class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">mail</span>
+              <input type="email" formControlName="email" required placeholder="Correo"
+                     class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"/>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Contraseña</label>
+            <div class="relative">
+              <span class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">lock</span>
+              <input [type]="showPassword ? 'text' : 'password'" formControlName="password" required
+                     placeholder="Contraseña"
+                     class="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"/>
+              <button type="button"
+                      [disabled]="isLoading"
+                      (click)="showPassword = !showPassword"
+                      class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                <span class="material-icons">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
+              </button>
+            </div>
+          </div>
+
+          @if (error) {
+            <div class="flex items-center gap-2 text-red-600 bg-red-50 p-3 rounded-lg">
+              <span class="material-icons">error</span>
+              <span class="text-sm">{{ error }}</span>
+            </div>
+          }
+
+          <button type="submit" [disabled]="isLoading"
+                  class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50">
+            {{ isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión' }}
+          </button>
+
+          <div class="text-center text-sm text-gray-600">
+            ¿No tienes cuenta?
+            <button type="button"
+                    [disabled]="isLoading"
+                    (click)="isLogin = false" class="text-blue-600 hover:text-blue-700 font-medium">
+              Regístrate
+            </button>
+          </div>
+        </form>
+      } @else if (!isLogin && !success()) {
+        <form [formGroup]="signupForm" (ngSubmit)="handleSignup()" class="space-y-6">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Correo Electrónico</label>
+            <div class="relative">
+              <span class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">mail</span>
+              <input type="email" formControlName="email" required
+                     class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"/>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Contraseña</label>
+            <div class="relative">
+              <span class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">lock</span>
+              <input [type]="showPassword ? 'text' : 'password'" formControlName="password" required
+                     class="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"/>
+              <button type="button" (click)="showPassword = !showPassword"
+                      [disabled]="isLoading"
+                      class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                <span class="material-icons">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Confirmar Contraseña</label>
+            <div class="relative">
+              <span class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">lock</span>
+              <input [type]="showConfirmPassword ? 'text' : 'password'" formControlName="confirmPassword" required
+                     class="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"/>
+              <button type="button" (click)="showConfirmPassword = !showConfirmPassword"
+                      [disabled]="isLoading"
+                      class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                <span class="material-icons">{{ showConfirmPassword ? 'visibility_off' : 'visibility' }}</span>
+              </button>
+            </div>
+          </div>
+
+          @if (error) {
+            <div class="flex items-center gap-2 text-red-600 bg-red-50 p-3 rounded-lg">
+              <span class="material-icons">error</span>
+              <span class="text-sm">{{ error }}</span>
+            </div>
+          }
+
+          <button type="submit" [disabled]="isLoading"
+                  class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50">
+            {{ isLoading ? 'Creando cuenta...' : 'Crear Cuenta' }}
+          </button>
+
+          <div class="text-center text-sm text-gray-600">
+            ¿Ya tienes cuenta?
+            <button type="button"
+                    [disabled]="isLoading"
+                    (click)="isLogin = true" class="text-blue-600 hover:text-blue-700 font-medium">
+              Inicia Sesión
+            </button>
+          </div>
+        </form>
+      }
+
+      <!-- Continue without login -->
+      <div class="mt-8 pt-6 border-t border-gray-200">
+        <button (click)="continueWithoutLogin()"
+                [disabled]="isLoading"
+                class="w-full flex items-center justify-center gap-2 text-gray-600 hover:text-gray-800 py-3 px-4 border border-gray-300 rounded-lg hover:bg-gray-50">
+          <span>Continuar sin registrarse</span>
+          <span class="material-icons">arrow_right_alt</span>
+        </button>
+        <p class="text-xs text-gray-500 mt-2 text-center">
+          Acceso limitado • Sin funciones de IA
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

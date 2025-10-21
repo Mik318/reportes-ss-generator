@@ -10,13 +10,13 @@
 
 
 /**
- * Solicitud para generar un reporte.
+ * Petición para refrescar tokens a partir de refresh_token
  */
-export interface ReportRequest { 
+export interface RefreshRequest { 
     /**
-     * Lista de actividades realizadas
+     * Refresh token proporcionado por Supabase
      */
-    actividades: Array<string>;
+    refresh_token: string;
 }
 
 

@@ -29,26 +29,19 @@ paths:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
       security:
-      - JWTBearer: []
+      - HTTPBearer: []
   /auth/get-token:
-    get:
+    post:
       tags:
       - Autenticacion
       summary: Get Token
-      operationId: get_token_auth_get_token_get
-      parameters:
-      - name: email
-        in: query
+      operationId: get_token_auth_get_token_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
         required: true
-        schema:
-          type: string
-          title: Email
-      - name: password
-        in: query
-        required: true
-        schema:
-          type: string
-          title: Password
       responses:
         '200':
           description: Successful Response
@@ -62,6 +55,87 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+  /auth/create-account:
+    post:
+      tags:
+      - Autenticacion
+      summary: Create Acount
+      description: 'Crear cuenta: recibir email/password en el body JSON para no exponerlos
+        en la URL.'
+      operationId: create_acount_auth_create_account_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                title: Response Create Acount Auth Create Account Post
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /auth/refresh-token:
+    post:
+      tags:
+      - Autenticacion
+      summary: Refresh Token
+      description: 'Renueva tokens a partir de un refresh_token proporcionado por
+        el cliente.
+
+
+        Seguridad: este endpoint acepta el refresh_token en el body JSON. En producción
+
+        puedes preferir enviar refresh tokens en cookies HttpOnly para mayor seguridad.'
+      operationId: refresh_token_auth_refresh_token_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthTokenResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /auth/verify-token:
+    get:
+      tags:
+      - Autenticacion
+      summary: Verify Token
+      description: 'Verifica que el token en Authorization: Bearer <token> sea válido
+        y devuelve el User.
+
+
+        - Si el token es válido devuelve 200 y el modelo User.
+
+        - Si no lo es, `jwt_scheme` ya lanzará HTTPException con 401.'
+      operationId: verify_token_auth_verify_token_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+      security:
+      - HTTPBearer: []
   /openapi.yaml:
     get:
       tags:
@@ -82,14 +156,25 @@ components:
         access_token:
           type: string
           title: Access Token
+          description: Token JWT de acceso
         token_type:
           type: string
           title: Token Type
+          description: Tipo de token de autenticación
           default: bearer
+        refresh_token:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Refresh Token
+          description: Refresh token (opcional)
       type: object
       required:
       - access_token
       title: AuthTokenResponse
+      description: 'Respuesta con el token de autenticación.
+
+        Ahora incluye opcionalmente el refresh_token proporcionado por Supabase.'
     HTTPValidationError:
       properties:
         detail:
@@ -99,25 +184,73 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
-    ReportRequest:
+    LoginRequest:
       properties:
-        prompt:
+        email:
           type: string
-          title: Prompt
-          description: Texto para generar el reporte
+          title: Email
+          description: Correo del usuario
+        password:
+          type: string
+          title: Password
+          description: Contraseña del usuario
       type: object
       required:
-      - prompt
+      - email
+      - password
+      title: LoginRequest
+      description: Modelo para el login (email y password)
+    RefreshRequest:
+      properties:
+        refresh_token:
+          type: string
+          title: Refresh Token
+          description: Refresh token proporcionado por Supabase
+      type: object
+      required:
+      - refresh_token
+      title: RefreshRequest
+      description: Petición para refrescar tokens a partir de refresh_token
+    ReportRequest:
+      properties:
+        actividades:
+          items:
+            type: string
+          type: array
+          title: Actividades
+          description: Lista de actividades realizadas
+      type: object
+      required:
+      - actividades
       title: ReportRequest
+      description: Solicitud para generar un reporte.
     ReportResponse:
       properties:
         report:
           type: string
           title: Report
+          description: Reporte generado
       type: object
       required:
       - report
       title: ReportResponse
+      description: Respuesta con el reporte generado.
+    User:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: Identificador único del usuario
+        email:
+          type: string
+          title: Email
+          description: Correo electrónico del usuario
+      type: object
+      required:
+      - id
+      - email
+      title: User
+      description: Modelo de usuario del sistema.
     ValidationError:
       properties:
         loc:
@@ -140,6 +273,6 @@ components:
       - type
       title: ValidationError
   securitySchemes:
-    JWTBearer:
+    HTTPBearer:
       type: http
       scheme: bearer

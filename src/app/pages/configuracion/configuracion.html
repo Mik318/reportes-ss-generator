@@ -1,4 +1,16 @@
 <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-6">
+  <!-- Fullscreen loading overlay visible when isLoading() is true -->
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" [class.hidden]="!isLoading()" [attr.aria-hidden]="!isLoading()">
+    <div class="flex flex-col items-center space-y-3">
+      <svg role="status" class="animate-spin h-12 w-12 text-white" viewBox="0 0 24 24">
+        <title>Cargando</title>
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+      </svg>
+      <div class="text-white text-lg font-medium">Cargando, por favor espere...</div>
+    </div>
+  </div>
+
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <app-step-indicator
       [currentStep]="currentStep()"
@@ -197,12 +209,14 @@
                       <span class="text-sm text-gray-600">Configurar horarios para cada día</span>
                       <div class="flex gap-2">
                         <button
+                          [disabled]="isLoading()"
                           (click)="applyToAllDays('entrada')"
                           class="px-3 py-1 text-xs bg-blue-100 text-blue-600 rounded-md hover:bg-blue-200 transition-colors"
                         >
                           Aplicar hora entrada a todos
                         </button>
                         <button
+                          [disabled]="isLoading()"
                           (click)="applyToAllDays('salida')"
                           class="px-3 py-1 text-xs bg-green-100 text-green-600 rounded-md hover:bg-green-200 transition-colors"
                         >
@@ -325,6 +339,7 @@
                       <!-- Botón -->
                       <div class="flex items-end">
                         <button
+                          [disabled]="isLoading()"
                           (click)="addSpecialDate()"
                           class="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center"
                         >
@@ -351,6 +366,7 @@
                               <span class="text-gray-600 ml-3">{{ specialDate.tipoFecha }}</span>
                             </div>
                             <button
+                              [disabled]="isLoading()"
                               (click)="removeSpecialDate($index)"
                               class="p-2 text-red-500 hover:bg-red-100 rounded-lg transition-colors"
                             >
@@ -392,10 +408,12 @@
                           </div>
                           <div class="flex gap-2">
                             <button (click)="selectAllReports()"
+                                    [disabled]="isLoading()"
                                     class="px-3 py-1 text-sm bg-blue-100 text-blue-600 rounded-md hover:bg-blue-200 transition-colors">
                               Seleccionar todos
                             </button>
                             <button (click)="deselectAllReports()"
+                                    [disabled]="isLoading()"
                                     class="px-3 py-1 text-sm bg-gray-100 text-gray-600 rounded-md hover:bg-gray-200 transition-colors">
                               Deseleccionar todos
                             </button>
@@ -403,7 +421,7 @@
                         </div>
 
                         <button (click)="downloadSelectedReports()"
-                                [disabled]="selectedReports().size === 0 || isGenerating()"
+                                [disabled]="selectedReports().size === 0 || isGenerating() || isLoading()"
                                 class="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center">
                           @if (isGenerating()) {
                             <span class="material-symbols-outlined mr-2 animate-spin">progress_activity</span>
@@ -434,6 +452,7 @@
                                 </div>
                               </div>
                               <button (click)="previewReport(report); $event.stopPropagation()"
+                                      [disabled]="isLoading()"
                                       class="p-2 text-gray-500 hover:text-blue-500 hover:bg-blue-100 rounded-lg transition-colors">
                                 <span class="material-symbols-outlined text-sm">visibility</span>
                               </button>
@@ -487,7 +506,7 @@
                           </h3>
                           <button
                             (click)="generateAllReportsPdf()"
-                            [disabled]="isGenerating()"
+                            [disabled]="isGenerating() || isLoading()"
                             class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-300 transition-colors flex items-center"
                           >
                             @if (isGenerating()) {
@@ -508,6 +527,7 @@
                                   <span
                                     class="font-semibold text-blue-700">Reporte #{{ report.period.weekNumber }}</span>
                                   <button
+                                    [disabled]="isLoading()"
                                     (click)="generateSingleReportPdf(report)"
                                     class="px-3 py-1 text-xs bg-blue-100 text-blue-600 rounded hover:bg-blue-200 transition-colors"
                                   >
@@ -559,6 +579,7 @@
                           Resumen de actividades realizadas
                         </label>
                         <textarea
+                          [disabled]="isLoading()"
                           [(ngModel)]="report.resumeActivities"
                           (ngModelChange)="updateResumeActivities(report.id, $event)"
                           rows="3"
@@ -567,13 +588,59 @@
                           bg-white placeholder-gray-400"
                           placeholder="Describe brevemente las actividades realizadas en este periodo deberás redactarlas en primera persona y en pasado...."
                         ></textarea>
-                        <!--                        <button-->
-                        <!--                          (click)="autocompletarResumenIA(report)"-->
-                        <!--                          class="mt-2 px-3 py-1 text-xs bg-blue-100 text-blue-600 rounded hover:bg-blue-200 transition-colors"-->
-                        <!--                          type="button"-->
-                        <!--                        >-->
-                        <!--                          Autocompletar con IA-->
-                        <!--                        </button>-->
+                        <button
+                          [disabled]="isLoading()"
+                          (click)="autocompletarResumenIA(report.id)"
+                          class="mt-2 px-3 py-1 text-xs bg-blue-100 text-blue-600 rounded hover:bg-blue-200 transition-colors"
+                          type="button"
+                        >
+                          Autocompletar con IA
+                        </button>
+
+                        <!-- Editor IA: label y lista dinámica de actividades -->
+                        @if (iaEditorOpen()[report.id]) {
+                          <div class="mt-4 p-3 bg-white border rounded">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                              Las actividades se describirán brevemente en este periodo en primera persona y en pasado.
+                            </label>
+
+                            <div class="space-y-2">
+                              @for (actividad of iaActivities()[report.id]; track i; let i = $index) {
+                                <div class="flex items-start gap-2">
+                                  <input
+                                    [ngModel]="actividad"
+                                    (ngModelChange)="updateActivity(report.id, i, $event)"
+                                    class="flex-1 px-3 py-2 border rounded bg-white"
+                                    placeholder="Escribe una actividad en primera persona y en pasado..."
+                                    type="text"
+                                  />
+
+                                  <button type="button" (click)="addActivity(report.id)" title="Agregar actividad"
+                                          [disabled]="isLoading()"
+                                          class="px-2 py-1 text-xs bg-green-100 text-green-600 rounded hover:bg-green-200">
+                                    +
+                                  </button>
+                                  <button type="button" (click)="removeActivity(report.id, i)"
+                                          title="Eliminar actividad"
+                                          class="px-2 py-1 text-xs bg-red-100 text-red-600 rounded hover:bg-red-200"
+                                          [disabled]="(iaActivities()[report.id] || []).length <= 1 || isLoading()">-
+                                  </button>
+                                </div>
+                              }
+                            </div>
+
+                            <div class="mt-3 flex gap-2">
+                              <button type="button" (click)="applyActivities(report.id)"
+                                      [disabled]="isLoading()"
+                                      class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">Aplicar
+                              </button>
+                              <button type="button" (click)="cancelIAEditor(report.id)"
+                                      [disabled]="isLoading()"
+                                      class="px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200">Cancelar
+                              </button>
+                            </div>
+                          </div>
+                        }
                       </div>
                     }
                   </div>
@@ -605,10 +672,12 @@
                           </div>
                           <div class="flex gap-2">
                             <button (click)="selectAllReportsMonth()"
+                                    [disabled]="isLoading()"
                                     class="px-3 py-1 text-sm bg-blue-100 text-blue-600 rounded-md hover:bg-blue-200 transition-colors">
                               Seleccionar todos
                             </button>
                             <button (click)="deselectAllReportsMoth()"
+                                    [disabled]="isLoading()"
                                     class="px-3 py-1 text-sm bg-gray-100 text-gray-600 rounded-md hover:bg-gray-200 transition-colors">
                               Deseleccionar todos
                             </button>
@@ -616,7 +685,7 @@
                         </div>
 
                         <button (click)="downloadSelectedReportsMonth()"
-                                [disabled]="selectedReportsMonth().size === 0 || isGenerating()"
+                                [disabled]="selectedReportsMonth().size === 0 || isGenerating() || isLoading()"
                                 class="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center">
                           @if (isGenerating()) {
                             <span class="material-symbols-outlined mr-2 animate-spin">progress_activity</span>
@@ -699,7 +768,7 @@
                           </h3>
                           <button
                             (click)="generateAllReportsPdf('month')"
-                            [disabled]="isGenerating()"
+                            [disabled]="isGenerating() || isLoading()"
                             class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-300 transition-colors flex items-center"
                           >
                             @if (isGenerating()) {
@@ -720,6 +789,7 @@
                                   <span
                                     class="font-semibold text-blue-700">Reporte #{{ report.period.weekNumber }}</span>
                                   <button
+                                    [disabled]="isLoading()"
                                     (click)="generateSingleReportMonthPdf(report)"
                                     class="px-3 py-1 text-xs bg-blue-100 text-blue-600 rounded hover:bg-blue-200 transition-colors"
                                   >
@@ -762,7 +832,7 @@
             <div class="flex items-center justify-between mt-8">
               <button
                 (click)="prevStep()"
-                [disabled]="currentStep() === 1"
+                [disabled]="currentStep() === 1 || isLoading()"
                 class="px-6 py-3 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 disabled:bg-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors flex items-center"
               >
                 Anterior
@@ -776,7 +846,7 @@
 
               <button
                 (click)="nextStep()"
-                [disabled]="!canProceed()"
+                [disabled]="!canProceed() || isLoading()"
                 class="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center"
               >
                 {{ currentStep() === totalSteps ? 'Finalizar' : 'Siguiente' }}
@@ -794,6 +864,7 @@
                   </div>
                 </div>
                 <button
+                  [disabled]="isLoading()"
                   (click)="clearSavedData()"
                   class="px-3 py-1 text-xs bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors"
                   title="Limpiar todos los datos guardados"

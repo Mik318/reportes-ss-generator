@@ -1,6 +1,8 @@
 <div class="flex flex-col">
-  <div class="sticky top-0 z-50">
-    <app-nav-bar></app-nav-bar>
-  </div>
+  @if (isLoggedIn()) {
+    <div class="sticky top-0 z-50">
+      <app-nav-bar></app-nav-bar>
+    </div>
+  }
   <router-outlet></router-outlet>
 </div>

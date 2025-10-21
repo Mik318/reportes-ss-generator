@@ -10,13 +10,17 @@
 
 
 /**
- * Solicitud para generar un reporte.
+ * Modelo de usuario del sistema.
  */
-export interface ReportRequest { 
+export interface User { 
     /**
-     * Lista de actividades realizadas
+     * Identificador único del usuario
      */
-    actividades: Array<string>;
+    id: string;
+    /**
+     * Correo electrónico del usuario
+     */
+    email: string;
 }
 
 

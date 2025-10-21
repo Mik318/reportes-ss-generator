@@ -9,9 +9,19 @@
  */
 
 
+/**
+ * Respuesta con el token de autenticación. Ahora incluye opcionalmente el refresh_token proporcionado por Supabase.
+ */
 export interface AuthTokenResponse { 
+    /**
+     * Token JWT de acceso
+     */
     access_token: string;
+    /**
+     * Tipo de token de autenticación
+     */
     token_type?: string;
+    refresh_token?: string | null;
 }
 
 

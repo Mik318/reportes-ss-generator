@@ -91,9 +91,9 @@ constructor({ accessToken, apiKeys, basePath, credentials, encodeParam, encoder,
         this.encodeParam = encodeParam ?? (param => this.defaultEncodeParam(param));
         this.credentials = credentials ?? {};
 
-        // init default JWTBearer credential
-        if (!this.credentials['JWTBearer']) {
-            this.credentials['JWTBearer'] = () => {
+        // init default HTTPBearer credential
+        if (!this.credentials['HTTPBearer']) {
+            this.credentials['HTTPBearer'] = () => {
                 return typeof this.accessToken === 'function'
                     ? this.accessToken()
                     : this.accessToken;
