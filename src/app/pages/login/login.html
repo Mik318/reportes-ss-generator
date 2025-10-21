@@ -62,7 +62,7 @@
           @if (isLogin) {
             Accede a todas las funciones premium
           } @else {
-            Regístrate para desbloquear funciones de IA
+            Regístrate para desbloquear funciones de IA (Gratuitamente)
           }
         </p>
       </div>
@@ -76,6 +76,7 @@
           <h3 class="text-lg font-semibold text-gray-900">¡Cuenta creada exitosamente!</h3>
           <p class="text-gray-600">Tu cuenta ha sido creada. Favor de verificar su correo.</p>
           <button (click)="isLogin = false"
+                  [disabled]="isLoading"
                   [routerLink]="['/login']"
                   class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 transition-all duration-200">
             Continuar al Login
@@ -102,7 +103,9 @@
               <input [type]="showPassword ? 'text' : 'password'" formControlName="password" required
                      placeholder="Contraseña"
                      class="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"/>
-              <button type="button" (click)="showPassword = !showPassword"
+              <button type="button"
+                      [disabled]="isLoading"
+                      (click)="showPassword = !showPassword"
                       class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
                 <span class="material-icons">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
               </button>
@@ -123,7 +126,9 @@
 
           <div class="text-center text-sm text-gray-600">
             ¿No tienes cuenta?
-            <button type="button" (click)="isLogin = false" class="text-blue-600 hover:text-blue-700 font-medium">
+            <button type="button"
+                    [disabled]="isLoading"
+                    (click)="isLogin = false" class="text-blue-600 hover:text-blue-700 font-medium">
               Regístrate
             </button>
           </div>
@@ -146,6 +151,7 @@
               <input [type]="showPassword ? 'text' : 'password'" formControlName="password" required
                      class="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"/>
               <button type="button" (click)="showPassword = !showPassword"
+                      [disabled]="isLoading"
                       class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
                 <span class="material-icons">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
               </button>
@@ -159,6 +165,7 @@
               <input [type]="showConfirmPassword ? 'text' : 'password'" formControlName="confirmPassword" required
                      class="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"/>
               <button type="button" (click)="showConfirmPassword = !showConfirmPassword"
+                      [disabled]="isLoading"
                       class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
                 <span class="material-icons">{{ showConfirmPassword ? 'visibility_off' : 'visibility' }}</span>
               </button>
@@ -179,7 +186,9 @@
 
           <div class="text-center text-sm text-gray-600">
             ¿Ya tienes cuenta?
-            <button type="button" (click)="isLogin = true" class="text-blue-600 hover:text-blue-700 font-medium">
+            <button type="button"
+                    [disabled]="isLoading"
+                    (click)="isLogin = true" class="text-blue-600 hover:text-blue-700 font-medium">
               Inicia Sesión
             </button>
           </div>
@@ -189,6 +198,7 @@
       <!-- Continue without login -->
       <div class="mt-8 pt-6 border-t border-gray-200">
         <button (click)="continueWithoutLogin()"
+                [disabled]="isLoading"
                 class="w-full flex items-center justify-center gap-2 text-gray-600 hover:text-gray-800 py-3 px-4 border border-gray-300 rounded-lg hover:bg-gray-50">
           <span>Continuar sin registrarse</span>
           <span class="material-icons">arrow_right_alt</span>

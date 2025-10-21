@@ -46,13 +46,11 @@ export class Login {
     const result = await this.signIn(email ?? '', password ?? '');
     if (result) {
       this.auth.setLoggedIn(true);
-      this.router.navigate(['/home'])
+      this.router.navigate(['/home']);
     }
-    this.isLoading = false;
   }
 
   async handleSignup() {
-    console.log('handleSignup')
     this.isLoading = true;
     this.error = '';
     const {email, password, confirmPassword} = this.signupForm.value;
@@ -71,18 +69,17 @@ export class Login {
       password: password ?? ''
     }
     this.autenticacionService.createAcountAuthCreateAccountPost(loginRequest).subscribe({
-      next: (response) => {
-        console.log(response);
+      next: () => {
         this.success.set(true);
         this.isLogin = false;
+        this.isLoading = false;
       },
       error: (error) => {
         console.error(error);
         this.error = 'Error al crear la cuenta. Por favor, verifica tu información.';
+        this.isLoading = false;
       }
     })
-
-    this.isLoading = false;
   }
 
   // Simula tu AuthContext
@@ -98,9 +95,10 @@ export class Login {
             try {
               if (typeof window !== 'undefined' && response?.access_token) {
                 localStorage.setItem('jwt', response.access_token);
+                this.isLoading = false;
               }
             } catch (e) {
-              // ignore
+              this.isLoading = false;
             }
             this.auth.setLoggedIn(true);
             resolve(true);
@@ -115,7 +113,6 @@ export class Login {
   }
 
   continueWithoutLogin() {
-    console.log('Entrando sin login...');
     try {
       this.auth.setLoggedIn(true);
       this.router.navigate(['/home']);
